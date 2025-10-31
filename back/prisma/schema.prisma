@@ -14,18 +14,98 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int     @default(autoincrement()) @id
-  email String  @unique
-  name  String?
-  posts Post[]
+//Migrations de Visitante
+model Tipo_Prioridade {
+  id                Int @default(autoincrement()) @id
+  descricao         String @db.VarChar(100)
+  nivel_prioridade  Int @db.SmallInt
+  ativo             Boolean? 
+  criado_em         DateTime? @default(now())
+
+  Visitante Visitante[]
 }
 
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int?
+
+model Visitante {
+  id                  Int @default(autoincrement()) @id
+  nome                String @db.VarChar(100)
+  documento           String @db.VarChar(50) @unique
+  phone               Int
+  data_nascimento     DateTime
+  tipo_prioridade     Tipo_Prioridade? @relation(fields: [tipo_prioridade_id] , references: [id]) 
+  tipo_prioridade_id  Int?
+  foto                String? @db.VarChar(255)
+  ativo               Boolean?
+  criado_em           DateTime? @default(now())
+
+  Agendamentos Agendamento[]
+  Acessos Acesso[]
+}
+
+//Migrations Relacionadaa a Sala
+model Feriado {
+  id          Int @default(autoincrement())@id
+  data        DateTime
+  descricao   String @db.VarChar(255)
+  tipo        Int? @db.SmallInt // pode ser 1 nacinonal , 2 estaudal , 3 municipal
+  ativo       Boolean?
+  criado_em   DateTime? @default(now()) 
+}
+
+model Sala {
+  id                  Int @default(autoincrement()) @id
+  nome                String @db.VarChar(100) @unique
+  disponibilidade     Json
+  capacidade          Int 
+  variacao_capacidade Int? @db.SmallInt @default(2) // 1 - por hora , 2 dia , 3 semana 4 mes
+  ativo               Boolean?
+  criado_em           DateTime? @default(now()) 
+
+  Sala_Responsalvel Sala_Responsavel[]
+  Agendamentos Agendamento[]
+  Acessos Acesso[]
+}
+
+model Sala_Responsavel {
+  id         Int @default(autoincrement()) @id
+  sala       Sala @relation(fields: [sala_id] , references: [id])
+  sala_id    Int
+  nome       String
+  documento  String @db.VarChar(50) @unique
+  valido_de  DateTime
+  valido_ate DateTime?
+  ativo      Boolean?
+  criado_em  DateTime @default(now())
+}
+
+
+//AGENDAMENTO E ACESSO
+
+model Agendamento{
+  id            Int @default(autoincrement()) @id
+  visitante     Visitante @relation(fields: [visitante_id] , references: [id])
+  visitante_id  Int
+  sala          Sala @relation(fields: [sala_id] , references: [id])
+  sala_id       Int
+  data_agendada DateTime
+  status        Int @db.SmallInt() @default(1) // 1-pendente2-confirmado3-cancelado4-finalizado
+  ativo         Boolean?
+  code          String @db.VarChar(255) //qrcode
+  criado_em     DateTime @default(now())
+
+ acesso        Acesso? 
+}
+
+model Acesso {
+  id              Int @default(autoincrement()) @id
+  visitante       Visitante @relation(fields: [visitante_id], references: [id])
+  visitante_id    Int
+  sala            Sala @relation(fields: [sala_id] , references: [id])
+  sala_id         Int
+  entrada_em      DateTime?
+  saida_em        DateTime?
+  ativo           Boolean?
+
+  agendamento     Agendamento @relation(fields: [agendamento_id] , references: [id]) 
+  agendamento_id  Int @unique
 }
