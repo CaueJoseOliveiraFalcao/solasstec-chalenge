@@ -30,7 +30,7 @@ model Visitante {
   id                  Int @default(autoincrement()) @id
   nome                String @db.VarChar(100)
   documento           String @db.VarChar(50) @unique
-  phone               Int
+  phone               String @db.VarChar(20)
   data_nascimento     DateTime
   tipo_prioridade     Tipo_Prioridade? @relation(fields: [tipo_prioridade_id] , references: [id]) 
   tipo_prioridade_id  Int?
