@@ -10,15 +10,6 @@ import { Prisma, Visitante } from "generated/prisma";
 
         @Post()
         async create(@Body() createDto: CreateVisitanteDto) : Promise<Visitante>{
-            const data : Prisma.VisitanteCreateInput = {
-                nome : createDto.nome,
-                documento : createDto.documento,
-                phone : createDto.phone,
-                data_nascimento : createDto.data_nascimento,
-                ativo : createDto.ativo ?? true,
-                foto : createDto.foto,
-            }
-            const visitante = await this.visitanteService.createVisitante(data);
-            return visitante
+            return this.visitanteService.createVisitante(createDto);
         }
     }
