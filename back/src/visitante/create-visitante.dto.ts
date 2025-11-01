@@ -1,21 +1,20 @@
-import {IsString , IsOptional , IsInt , IsDateString , IsBoolean} from 'class-validator'
+import {IsString , IsOptional ,IsNotEmpty ,IsInt , IsDateString , IsBoolean} from 'class-validator'
 
 export class CreateVisitanteDto {
+    @IsNotEmpty()
     @IsString()
     nome : string
 
+    @IsNotEmpty()
     @IsString()
     documento : string
 
+    @IsNotEmpty()
     @IsString()
     phone  : string
 
     @IsDateString()
     data_nascimento: string;
-
-    @IsOptional()
-    @IsInt()
-    tipo_prioridade_id? : number
 
     @IsOptional()
     @IsString()
@@ -24,4 +23,17 @@ export class CreateVisitanteDto {
     @IsOptional()
     @IsBoolean()
     ativo? : boolean
+
+    // tipo prioridade
+      @IsOptional()
+        @IsBoolean()
+        is_tipo_prioridade?: boolean;
+
+        @IsOptional()
+        @IsString()
+        descricao?: string;
+
+        @IsOptional()
+        @IsInt()
+        nivel_prioridade?: number;
 }

@@ -22,7 +22,7 @@ model Tipo_Prioridade {
   ativo             Boolean? 
   criado_em         DateTime? @default(now())
 
-  Visitante Visitante[]
+  visitante Visitante?
 }
 
 
@@ -33,7 +33,7 @@ model Visitante {
   phone               String @db.VarChar(20)
   data_nascimento     DateTime
   tipo_prioridade     Tipo_Prioridade? @relation(fields: [tipo_prioridade_id] , references: [id]) 
-  tipo_prioridade_id  Int?
+  tipo_prioridade_id  Int? @unique
   foto                String? @db.VarChar(255)
   ativo               Boolean?
   criado_em           DateTime? @default(now())
