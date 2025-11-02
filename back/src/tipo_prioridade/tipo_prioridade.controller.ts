@@ -8,8 +8,12 @@ import { CreateTipoPrioridadeDTO } from "./create-tipo-prioridade.dto";
 
         @Post()
         async create(@Body() crateDto : CreateTipoPrioridadeDTO):Promise<Tipo_Prioridade | undefined> {
-            console.log(crateDto);
             const response = this.tipoPrioridadeService.createTipoPrioridade(crateDto);
             return response;
+        }
+
+        @Get()
+        async getAllTipoPrioridade():Promise<Tipo_Prioridade[]>{
+            return this.tipoPrioridadeService.getAllTipoPrioridade();
         }
     }

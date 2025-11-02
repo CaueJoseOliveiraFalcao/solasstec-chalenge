@@ -1,0 +1,47 @@
+
+input {
+  width: 100%;
+  background-color: #f0f8ff;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 8px 12px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  outline: none;
+  transition: all 0.2s ease;
+}
+label {
+    margin: 0.5rem 0;
+}
+input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(203, 223, 246, 0.5);
+}
+
+.check-input{
+    width: 10%;
+    background-color: transparent;
+    border: none!important;
+    box-shadow: none;
+  height: 15px;  
+}
+.check-input:focus {
+  border-color: none;
+    box-shadow: none;
+}
+
+
+.enviar {
+  background-color: #2563eb; /* azul */
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  margin-top: 2rem;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.enviar:hover {
+  background-color: #1d4ed8; /* azul mais escuro no hover */
+}

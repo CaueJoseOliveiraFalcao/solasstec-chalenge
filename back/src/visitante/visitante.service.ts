@@ -7,19 +7,45 @@ import { TipoPrioridadeService } from "src/tipo_prioridade/tipo_prioridade.servi
 export class VisitanteService {
     constructor(private prisma : PrismaService , private tipoPrioridadeService : TipoPrioridadeService) {}
 
+    async getAllVisitants() : Promise<Visitante[]>{
+        const visitants = await this.prisma.visitante.findMany();
+        return visitants;
+    }
 
+    async getUserByDocument(document: string):Promise<boolean> {
+        const getUser = await this.prisma.visitante.findFirst(({
+            where : {documento : document},
+        }));
+
+        return !!getUser;
+    }
+    async deleteVisitant(ToDeleteId : number):Promise<void> {
+        ToDeleteId = Number(ToDeleteId)
+        const visitante = await this.prisma.visitante.findUnique({
+            where : {id : ToDeleteId}
+        })
+
+        if (!visitante) {
+            throw new BadRequestException('Visitante não encontrado')
+        }
+        if (visitante.tipo_prioridade_id) {
+            await this.prisma.tipo_Prioridade.delete({
+                where: { id: visitante.tipo_prioridade_id },
+            })
+        }
+        await this.prisma.visitante.delete({
+            where: { id : ToDeleteId },
+        })
+    }
     async createVisitante(data:CreateVisitanteDto):Promise<Visitante | undefined>{
         let tipoIdCriado : number | undefined = 0;
 
-        if (data.documento.length != 11){
-            throw new BadRequestException('documento invalido');
-        }
+        if (data.documento.length != 11){throw new BadRequestException('documento invalido');}
+
         const documentExist = await this.getUserByDocument(data.documento);
-        if(documentExist){
-            throw new BadRequestException('documento ja existe')
-        }
+        if(documentExist){throw new BadRequestException('documento ja existe')}
 
-
+        //caso checkbox prioridade for acionada
         if (data.is_tipo_prioridade){
             if (!data.descricao || data.nivel_prioridade === undefined){
                     throw new BadRequestException('Informacoes relacionada a Priorioridade em falta')
@@ -54,18 +80,79 @@ export class VisitanteService {
                     ativo: data.ativo,
                 },
             });
-        }
-        catch (error : any) {   
+        }catch (error : any) {   
             throw error;
-
         }
 
-    
-    async getUserByDocument(document: string):Promise<boolean> {
-        const getUser = await this.prisma.visitante.findFirst(({
-            where : {documento : document},
-        }));
-
-        return !!getUser;
+async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
+    // validação básica
+    if (!data.id) {
+        throw new BadRequestException('Id não fornecido');
     }
+
+    if (data.is_tipo_prioridade) {
+        if (!data.descricao || data.nivel_prioridade === undefined) {
+            throw new BadRequestException('Informações relacionadas à prioridade estão faltando');
+        }
+    }
+
+    // busca o visitante
+    const visitante = await this.prisma.visitante.findUnique({
+        where: { id: data.id },
+    });
+
+    if (!visitante) return undefined;
+
+    // usamos transação para manter consistência
+    const editedVisitante = await this.prisma.$transaction(async (prisma) => {
+        let tipoPrioridadeId = visitante.tipo_prioridade_id;
+
+        // remover prioridade se checkbox desmarcado
+        if (visitante.tipo_prioridade_id && !data.is_tipo_prioridade) {
+            await prisma.tipo_Prioridade.delete({
+                where: { id: visitante.tipo_prioridade_id },
+            });
+            tipoPrioridadeId = null;
+        }
+
+        // atualizar prioridade existente
+        if (visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
+            await prisma.tipo_Prioridade.update({
+                where: { id: visitante.tipo_prioridade_id },
+                data: {
+                    descricao: data.descricao!,
+                    nivel_prioridade: data.nivel_prioridade!,
+                    ativo: true,
+                },
+            });
+        }
+
+        // criar nova prioridade se não existia
+        if (!visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
+            const newTipo = await prisma.tipo_Prioridade.create({
+                data: {
+                    descricao: data.descricao!,
+                    nivel_prioridade: data.nivel_prioridade!,
+                    ativo: true,
+                },
+            });
+            tipoPrioridadeId = newTipo.id;
+        }
+
+        // atualizar dados do visitante
+        return prisma.visitante.update({
+            where: { id: data.id },
+            data: {
+                nome: data.nome,
+                phone: data.phone,
+                data_nascimento: new Date(data.data_nascimento),
+                ativo: data.ativo,
+                tipo_prioridade_id: tipoPrioridadeId,
+            },
+        });
+    });
+
+    return editedVisitante;
+}
+
 }

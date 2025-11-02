@@ -1,6 +1,9 @@
 import {IsString , IsOptional ,IsNotEmpty ,IsInt , IsDateString , IsBoolean} from 'class-validator'
 
 export class CreateVisitanteDto {
+
+    id?: number;
+    
     @IsNotEmpty()
     @IsString()
     nome : string

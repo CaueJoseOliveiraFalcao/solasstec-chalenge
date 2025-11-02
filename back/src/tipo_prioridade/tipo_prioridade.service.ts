@@ -10,5 +10,8 @@ import { Tipo_Prioridade , Prisma } from "generated/prisma";
     async createTipoPrioridade(data : Prisma.Tipo_PrioridadeCreateInput): Promise<Tipo_Prioridade | undefined>{
         return await this.prisma.tipo_Prioridade.create({ data });
     }
+    async getAllTipoPrioridade() : Promise<Tipo_Prioridade[]> {
+        return await this.prisma.tipo_Prioridade.findMany();
+    }
     }
 
