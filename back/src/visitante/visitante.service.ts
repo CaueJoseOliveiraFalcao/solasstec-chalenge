@@ -85,29 +85,27 @@ export class VisitanteService {
         }
 
 async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
-    // validação básica
     if (!data.id) {
         throw new BadRequestException('Id não fornecido');
     }
-
+    //ja tem ou quer cria uma prioridade , verifica os campos
     if (data.is_tipo_prioridade) {
         if (!data.descricao || data.nivel_prioridade === undefined) {
             throw new BadRequestException('Informações relacionadas à prioridade estão faltando');
         }
     }
 
-    // busca o visitante
     const visitante = await this.prisma.visitante.findUnique({
         where: { id: data.id },
     });
 
     if (!visitante) return undefined;
 
-    // usamos transação para manter consistência
+    //usa o transaction para lidar com todos os bancos de uma vez
     const editedVisitante = await this.prisma.$transaction(async (prisma) => {
         let tipoPrioridadeId = visitante.tipo_prioridade_id;
 
-        // remover prioridade se checkbox desmarcado
+        // caso o usuario seja prioridade e queira sair
         if (visitante.tipo_prioridade_id && !data.is_tipo_prioridade) {
             await prisma.tipo_Prioridade.delete({
                 where: { id: visitante.tipo_prioridade_id },
@@ -115,7 +113,7 @@ async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
             tipoPrioridadeId = null;
         }
 
-        // atualizar prioridade existente
+        //caso ele queria atualizar sua prioridade
         if (visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
             await prisma.tipo_Prioridade.update({
                 where: { id: visitante.tipo_prioridade_id },
@@ -127,7 +125,7 @@ async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
             });
         }
 
-        // criar nova prioridade se não existia
+        // caso ele nao tivesse prioridade e queira criar
         if (!visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
             const newTipo = await prisma.tipo_Prioridade.create({
                 data: {
@@ -139,7 +137,6 @@ async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
             tipoPrioridadeId = newTipo.id;
         }
 
-        // atualizar dados do visitante
         return prisma.visitante.update({
             where: { id: data.id },
             data: {

@@ -5,13 +5,14 @@ import api from '../../app/api'
 import './CreateVisitantForm.css'
 import ErrorComponent from "../Error/ErrorComponent";
 import SucessComponent from "../Sucess/SucessComponent";
+import BaseForm from "../BaseForm";
 
 export default function CreateVisitantForm(){
     const [acessoPrioritario , setAcessoPrioritario] = useState(false);
     const [descricaoPrioridade , setDescricaoPrioridade] = useState("");
     const [nivelPrioridade , setNivelPrioridade] = useState(0);
     const [errorPopup ,setErroPopup] = useState({error : false , titulo : '' , desc : ''});
-    const [sucessPopup ,setSucessPopup] = useState({sucess : false , titulo : '' , desc : ''});
+    const [successPopup, setSuccessPopup] = useState({ success: false, titulo: '', desc: '' });
 
     const [name , setName] = useState('');
     const [document , setDocument] = useState('');
@@ -72,8 +73,8 @@ export default function CreateVisitantForm(){
         }
         try {
             const res = await api.post('/visitante' , data)
-            setSucessPopup({
-                sucess: true,
+            setSuccessPopup({
+                success: true,
                 titulo: 'Sucesso!',
                 desc: 'Usuario Criado Com Sucesso.',
             });
@@ -85,6 +86,10 @@ export default function CreateVisitantForm(){
             setAcessoPrioritario(false)
             setDescricaoPrioridade('')
             setNivelPrioridade(0)
+
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000)
             return
         }catch (error : any){
             if (error.response && error.response.data) {
@@ -106,23 +111,22 @@ export default function CreateVisitantForm(){
     
     }
     return(
-        <div className="flex justify-center items-center flex-col ">
-            <div style={{maxWidth : 1000}} className="w-full p-6 bg-white rounded-2xl border-solid">
-
-            {errorPopup.error && (
-                <ErrorComponent
-                    titulo={errorPopup.titulo}
-                    desc={errorPopup.desc}
-                    onClose={() => setErroPopup({ error: false, titulo: '', desc: '' })}
-                />
-            )}
-            {sucessPopup.sucess && (
-                <SucessComponent
-                    titulo={sucessPopup.titulo}
-                    desc={sucessPopup.desc}
-                    onClose={() => setSucessPopup({ sucess: false, titulo: '', desc: '' })}
-                />
-            )}
+        <div className="flex justify-center items-center flex-col mt-10">
+                <BaseForm>
+                {errorPopup.error && (
+                    <ErrorComponent
+                        titulo={errorPopup.titulo}
+                        desc={errorPopup.desc}
+                        onClose={() => setErroPopup({ error: false, titulo: '', desc: '' })}
+                    />
+                    )}
+                    {successPopup.success && (
+                    <SucessComponent
+                        titulo={successPopup.titulo}
+                        desc={successPopup.desc}
+                        onClose={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
+                    />
+                    )}
             <h1 className="mt-4 mb-2 text-2xl font-bold">Criar Visitante</h1>
                 <form action="POST" onSubmit={(e) => Submit(e)} className="flex flex-col">
                     <div className="flex justify-around w-full flex-col">
@@ -181,8 +185,7 @@ export default function CreateVisitantForm(){
                         />
 
                 </form>
-                </div>
-
+                </BaseForm>
         </div>
         
     )

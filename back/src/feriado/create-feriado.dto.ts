@@ -2,6 +2,9 @@ import {IsString , IsOptional ,IsNotEmpty ,IsInt , IsDateString , IsBoolean, IsN
 
 
 export class CreateFeriadoDto {
+    @IsOptional()
+    id_feriado : number
+    
     @IsNotEmpty()
     data : Date
 

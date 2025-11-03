@@ -76,7 +76,9 @@ export default function ReciveVisitants(){
         }
         try {
             const res = await api.post('/visitante/editar' , data)
-            console.log(res);
+            alert('usuario alterado com sucesso')
+            window.location.reload()
+
         } catch (error : any){
             if (error.response && error.response.data) {
                 const { message, error: errType } = error.response.data;    
@@ -87,7 +89,7 @@ export default function ReciveVisitants(){
     }
     const deleteVisitante = async (id : Number) => {
         try {
-            await api.delete(`/visitante/${id}`); // ajuste a URL conforme seu backend
+            await api.delete(`/visitante/${id}`);
             alert('Visitante deletado com sucesso!');
             window.location.reload();
         } catch (error: any) {
@@ -97,7 +99,7 @@ export default function ReciveVisitants(){
     }
     return (
         <div className='flex justify-center'>
-            <div className="w-full mt-10 p-6 bg-white rounded-2xl border-solid" style={{maxWidth : 1000}}>
+            <div className="w-full mt-10 mb-10 p-6 bg-white rounded-2xl border-solid" style={{maxWidth : 1000}}>
                 <h1 className="mt-4 mb-2 text-2xl font-bold">Gerenciar Visitantes</h1>
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">

@@ -7,7 +7,6 @@ export default function VisitantPage(){
     return(
         <div>
             <Header/>
-            <h1  className="text-center mt-3">Gerenciamento de Visitantes</h1>
             <CreateVisitanteForm/>
             <ReciveVisitants/>
         </div>

@@ -54,28 +54,39 @@ model Feriado {
 
 model Sala {
   id                  Int @default(autoincrement()) @id
-  nome                String @db.VarChar(100) @unique
+  nome                String @db.VarChar(100) 
   disponibilidade     Json
   capacidade          Int 
   variacao_capacidade Int? @db.SmallInt @default(2) // 1 - por hora , 2 dia , 3 semana 4 mes
+  responsavel         Sala_Responsavel? @relation(fields: [responsavel_id], references: [id])
+  responsavel_id      Int?
   ativo               Boolean?
   criado_em           DateTime? @default(now()) 
 
-  Sala_Responsalvel Sala_Responsavel[]
   Agendamentos Agendamento[]
   Acessos Acesso[]
+  auditorias Sala_Autitoria[]
 }
 
 model Sala_Responsavel {
   id         Int @default(autoincrement()) @id
-  sala       Sala @relation(fields: [sala_id] , references: [id])
-  sala_id    Int
   nome       String
   documento  String @db.VarChar(50) @unique
   valido_de  DateTime
   valido_ate DateTime?
   ativo      Boolean?
   criado_em  DateTime @default(now())
+  
+  salas Sala[]
+}
+
+model Sala_Autitoria{
+  id             Int @default(autoincrement()) @id
+  sala           Sala @relation(fields: [sala_id] , references: [id] , onDelete: Cascade)
+  sala_id        Int
+  responsavel_id Int?
+  data_alterecao DateTime @default(now())
+  alteracao      Json
 }
 
 

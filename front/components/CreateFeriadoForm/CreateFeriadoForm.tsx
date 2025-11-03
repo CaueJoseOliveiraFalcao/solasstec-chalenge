@@ -1,10 +1,13 @@
 import { useState } from "react";
 import api from "../../app/api";
 import '../CreateVisitantForm/CreateVisitantForm.css'
+import ErrorComponent from "../Error/ErrorComponent";
+import SucessComponent from "../Sucess/SucessComponent";
+import BaseForm from "../BaseForm";
 export default function CreateFeriadoForm() {
     const [data, setData] = useState('');
     const [descricao, setDescricao] = useState('');
-    const [tipo, setTipo] = useState<number | ''>('');
+    const [tipo, setTipo] = useState<number | ''>(0);
 
     const [errorPopup, setErroPopup] = useState({ error: false, titulo: '', desc: '' });
     const [successPopup, setSuccessPopup] = useState({ success: false, titulo: '', desc: '' });
@@ -23,6 +26,9 @@ export default function CreateFeriadoForm() {
             setData('');
             setDescricao('');
             setTipo('');
+            setTimeout(() => {
+                window.location.reload();
+            }, 2000)
         } catch (error: any) {
             console.error(error);
             setErroPopup({ error: true, titulo: 'Erro', desc: 'Não foi possível adicionar o feriado' });
@@ -31,30 +37,21 @@ export default function CreateFeriadoForm() {
 
     return (
         <div className="flex justify-center items-center flex-col">
-            <div style={{ maxWidth: 1000 }} className="w-full p-6 bg-white rounded-2xl border-solid">
-
-                {errorPopup.error && (
-                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                        <strong className="font-bold">{errorPopup.titulo}</strong>
-                        <span className="block">{errorPopup.desc}</span>
-                        <span
-                            className="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer"
-                            onClick={() => setErroPopup({ error: false, titulo: '', desc: '' })}
-                        >×</span>
-                    </div>
-                )}
-
-                {successPopup.success && (
-                    <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                        <strong className="font-bold">{successPopup.titulo}</strong>
-                        <span className="block">{successPopup.desc}</span>
-                        <span
-                            className="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer"
-                            onClick={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
-                        >×</span>
-                    </div>
-                )}
-
+            <BaseForm>
+                    {errorPopup.error && (
+                    <ErrorComponent
+                        titulo={errorPopup.titulo}
+                        desc={errorPopup.desc}
+                        onClose={() => setErroPopup({ error: false, titulo: '', desc: '' })}
+                    />
+                    )}
+                    {successPopup.success && (
+                    <SucessComponent
+                        titulo={successPopup.titulo}
+                        desc={successPopup.desc}
+                        onClose={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
+                    />
+                    )}
                 <h1 className="mt-4 mb-2 text-2xl font-bold">Criar Feriado</h1>
 
                 <form onSubmit={handleSubmit} className="flex flex-col">
@@ -67,7 +64,7 @@ export default function CreateFeriadoForm() {
                             required
                         />
 
-                        <label htmlFor="descricao">Descrição</label>
+                        <label htmlFor="descricao">Descricao</label>
                         <input
                             type="text"
                             value={descricao}
@@ -75,13 +72,13 @@ export default function CreateFeriadoForm() {
                             required
                         />
 
-                        <label htmlFor="tipo">Tipo (opcional)</label>
+                        <label htmlFor="tipo">Tipo (nacional = 1  estadual = 2  municipal = 3)</label>
                         <input
                             type="number"
                             value={tipo}
                             onChange={(e) => setTipo(Number(e.target.value))}
                             min={0}
-                            max={10}
+                            max={3}
                         />
                     </div>
 
@@ -91,7 +88,7 @@ export default function CreateFeriadoForm() {
                         className="enviar"
                     />
                 </form>
-            </div>
+            </BaseForm>
         </div>
     );
 }
