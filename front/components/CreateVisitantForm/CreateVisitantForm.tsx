@@ -96,7 +96,7 @@ export default function CreateVisitantForm(){
                 const { message, error: errType } = error.response.data;
                 setErroPopup({
                     error: true,
-                    titulo: errType || 'Erro',
+                    titulo: 'Error',
                     desc: message || 'Ocorreu um erro ao enviar.',
                 });
             } else {

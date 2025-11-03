@@ -1,11 +1,15 @@
 import { PrismaService } from "src/prisma.service";
 import { ResposavelSalaService , } from "./responsavel-sala.service";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { ResponsavelSalaController } from "./responsavel-sala.controller";
+import { SalaModule } from "src/sala/sala.module";
 
 @Module({
+    //dependecia circular com sala
+    imports :[forwardRef(()=>SalaModule)],
     controllers : [ResponsavelSalaController],
-    providers : [ResposavelSalaService , PrismaService]
+    providers : [ResposavelSalaService , PrismaService],
+    exports : [ResposavelSalaService]
 })
 
 export class ResponsavelSalaModule {}

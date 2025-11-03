@@ -54,7 +54,7 @@ model Feriado {
 
 model Sala {
   id                  Int @default(autoincrement()) @id
-  nome                String @db.VarChar(100) 
+  nome                String @db.VarChar(100) @unique
   disponibilidade     Json
   capacidade          Int 
   variacao_capacidade Int? @db.SmallInt @default(2) // 1 - por hora , 2 dia , 3 semana 4 mes

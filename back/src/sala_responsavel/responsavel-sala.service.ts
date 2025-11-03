@@ -1,13 +1,23 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
-import { Sala_Responsavel , Prisma } from "generated/prisma";
+import { Sala_Responsavel , Prisma, Sala } from "generated/prisma";
 import { CreateResponsavelSalaDto } from "./create-responsavel-sala.dto";
+import { SalaService } from "src/sala/sala.service";
 
 
 @Injectable()
 export class ResposavelSalaService{
-    constructor(private prisma : PrismaService){}
-
+    constructor(private prisma : PrismaService , 
+                @Inject(forwardRef(() => SalaService))
+                private salaService : SalaService){}
+    async verifyResponsavelExist(responsavel_id : number) : Promise<boolean>{
+        const responsavel = await this.prisma.sala_Responsavel.findUnique(
+            {
+                where : {id : responsavel_id}
+            }
+        ) 
+        return !!responsavel
+    }
     async getAllResponsaveis() : Promise<Sala_Responsavel[]>{
         const responsaveis = await this.prisma.sala_Responsavel.findMany();
         return responsaveis;
@@ -74,6 +84,9 @@ export class ResposavelSalaService{
 
         if(responsavel){
             try {
+                //limpa todos os campos de sala:responsavel_id antes de excluir o responsavel
+                await this.salaService.desatributeEachResponsavelInSalas(responsavel.id);
+                
                 await this.prisma.sala_Responsavel.delete({
                     where : {id : responsavel.id}
                 })
@@ -87,4 +100,5 @@ export class ResposavelSalaService{
             throw new BadRequestException('responsavel nao encontrado') 
         }
     }
+
 }

@@ -30,12 +30,8 @@ export default function CreateSalaForm() {
     const [responsavelSelecionado, setResponsavelSelecionado] = useState<number | ''>('')
 
     const [nomeSala, setNomeSala] = useState('');
-    const [disponibilidadeSala , setDisponibilidadeSala] = useState({})
     const [capacidadeSala , setCapacidadeSala] = useState(0);
     const [varicacaoCapacidadeSala] =useState(2);
-    const [data, setData] = useState('');
-    const [descricao, setDescricao] = useState('');
-    const [tipo, setTipo] = useState<number | ''>(0);
 
     const [diasDaSemana , setDiasDaSemana] = useState<DiasDaSemana>({
         Segunda : {open : true , init : "08:00" , end : "17:00"},
@@ -56,35 +52,49 @@ export default function CreateSalaForm() {
     const GetResponsaveis = async () => {
         try {
             const response = await api.get('responsavel-sala')
+            console.log(response.data.length);
             if(response.data.length === 0){
-                alert('Sem responsaveis Adicione Algum Na Pagina A seguir');
-                window.location.href = '/responsavel'
+                const ok = window.confirm('Sem Responsáveis Cadastrados. Adicione algum na página a seguir.');
+                if (ok) {
+                    window.location.href = '/responsavel';
+                }
             }
             setResponsaveis(response.data);
         } catch (error) {
-            
+            console.log(error);
         }
     };
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(diasDaSemana)
-        try {
-            await api.post('/saefwwsfr', {
-                data: new Date(data),
-                descricao,
-                tipo: tipo !== '' ? tipo : undefined,
-                ativo : true
-            });
-            setSuccessPopup({ success: true, titulo: 'Sucesso!', desc: 'Feriado adicionado com sucesso' });
-            setData('');
-            setDescricao('');
-            setTipo('');
+        try {        
+            const data = {
+                "nome" : nomeSala,
+                "capacidade" : capacidadeSala,
+                "disponibilidade" : JSON.stringify(diasDaSemana),
+                "responsavel_id" : responsavelSelecionado != 0 ? responsavelSelecionado : null,
+                "ativo" : true,
+            }
+            await api.post('/sala', data);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setSuccessPopup({ success: true, titulo: 'Sucesso!', desc: 'Sala adicionada com sucesso' });
             setTimeout(() => {
                 window.location.reload();
             }, 2000)
-        } catch (error: any) {
-            console.error(error);
-            setErroPopup({ error: true, titulo: 'Erro', desc: 'Não foi possível adicionar o feriado' });
+        }catch (error : any){
+            if (error.response && error.response.data) {
+                const { message, error: errType } = error.response.data;
+                setErroPopup({
+                    error: true,
+                    titulo: 'Error',
+                    desc: message || 'Ocorreu um erro ao enviar.',
+                });
+            } else {
+                setErroPopup({
+                    error: true,
+                    titulo: 'Erro',
+                    desc: 'Não foi possível conectar ao servidor.',
+                });
+            }
         }
     };
 
@@ -109,8 +119,8 @@ export default function CreateSalaForm() {
                     <h1 className="mt-4 mb-2 text-2xl font-bold">Nova Sala</h1>
 
                     <form onSubmit={handleSubmit} className="flex flex-col">
-                        <div className="flex justify-around w-full gap-5 flex-row">
-                            <div>
+                        <div className="flex w-full gap-5 flex-row">
+                            <div className="w-1/2">
                                 <label htmlFor="nome">Nome da Sala</label>
                                 <input
                                     type="text"
@@ -120,7 +130,7 @@ export default function CreateSalaForm() {
                                     required
                                 />
                             </div>
-                            <div>
+                            <div className="w-1/2">
                                 <label htmlFor="capacidade">Capacidade</label>
                                 <input
                                     type="number"
@@ -129,23 +139,13 @@ export default function CreateSalaForm() {
                                     required
                                 />
                             </div>
-                            <div>
-                                <label htmlFor="tipo">Tipo (dia = 1  mes = 2  ano = 3)</label>
-                                <input
-                                    type="number"
-                                    value={tipo}
-                                    onChange={(e) => setTipo(Number(e.target.value))}
-                                    min={0}
-                                    max={3}
-                                />
-                            </div>
                         </div>
-                            <div>
-                                <label htmlFor="responsavel">Responsavel Atual</label>
+                            <div className="mt-4">
+                                <label htmlFor="responsavel">Responsavel Atual (Opicional)</label>
                                 <select
                                     value={responsavelSelecionado}
                                     onChange={(e) => setResponsavelSelecionado(Number(e.target.value))}
-                                    required
+                                    
                                 >
                                     <option value="">Selecione um responsavel</option>
                                     {responsaveis.map(resp => (

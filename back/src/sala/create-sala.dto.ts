@@ -1,4 +1,4 @@
-import { IsNumber , IsString , IsNotEmpty , IsEmpty, IsJSON, IsOptional, IsBoolean } from "class-validator";
+import { IsNumber , IsString , IsNotEmpty , IsEmpty, IsJSON, IsOptional, IsBoolean , Min } from "class-validator";
 
 export class CreateSalaDto{
     @IsNotEmpty()
@@ -11,6 +11,7 @@ export class CreateSalaDto{
 
     @IsNotEmpty()
     @IsNumber()
+    @Min(1, { message: 'Capacidade deve ser pelo menos 1' })
     capacidade : number
 
     @IsOptional()
