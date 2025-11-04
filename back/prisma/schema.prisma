@@ -65,7 +65,7 @@ model Sala {
 
   Agendamentos Agendamento[]
   Acessos Acesso[]
-  auditorias Sala_Autitoria[]
+  auditorias Sala_Auditoria[]
 }
 
 model Sala_Responsavel {
@@ -80,7 +80,7 @@ model Sala_Responsavel {
   salas Sala[]
 }
 
-model Sala_Autitoria{
+model Sala_Auditoria{
   id             Int @default(autoincrement()) @id
   sala           Sala @relation(fields: [sala_id] , references: [id] , onDelete: Cascade)
   sala_id        Int

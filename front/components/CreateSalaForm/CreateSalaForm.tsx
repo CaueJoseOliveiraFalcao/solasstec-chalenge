@@ -24,8 +24,13 @@ interface DiasDaSemana {
   Sabado?: Dia
   Domingo?: Dia
 }
-
-export default function CreateSalaForm() {
+interface ModalFunction {
+    setOpenCreateModal : (value : boolean) => void;
+}
+export default function CreateSalaForm({ setOpenCreateModal } : ModalFunction) {
+    const handleClose = () => {
+        setOpenCreateModal(false);
+    };
     const [responsaveis, setResponsaveis] = useState<Responsavel[]>([])
     const [responsavelSelecionado, setResponsavelSelecionado] = useState<number | ''>('')
 
@@ -99,121 +104,132 @@ export default function CreateSalaForm() {
     };
 
     return (
-        <div className="flex justify-center items-center mt-10 flex-col">
-                <BaseForm>
-                    {errorPopup.error && (
-                    <ErrorComponent
-                        titulo={errorPopup.titulo}
-                        desc={errorPopup.desc}
-                        onClose={() => setErroPopup({ error: false, titulo: '', desc: '' })}
-                    />
-                    )}
+        <div className="fixed inset-0 flex items-center  justify-center bg-gray-950/50 backdrop-blur-md">
+            <div   className="bg-white rounded-2xl shadow-xl w-full overflow-hidden"
+                    style={{ maxWidth: 900, maxHeight: 700 }}>
+                <div className="overflow-y-auto p-6" style={{ maxHeight: 700 }}>
+                    <div className="flex justify-center items-center  flex-col">
+                        <BaseForm>
+                            {errorPopup.error && (
+                            <ErrorComponent
+                                titulo={errorPopup.titulo}
+                                desc={errorPopup.desc}
+                                onClose={() => setErroPopup({ error: false, titulo: '', desc: '' })}
+                            />
+                            )}
 
-                    {successPopup.success && (
-                    <SucessComponent
-                        titulo={successPopup.titulo}
-                        desc={successPopup.desc}
-                        onClose={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
-                    />
-                    )}
-                    <h1 className="mt-4 mb-2 text-2xl font-bold">Nova Sala</h1>
+                            {successPopup.success && (
+                            <SucessComponent
+                                titulo={successPopup.titulo}
+                                desc={successPopup.desc}
+                                onClose={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
+                            />
+                            )}
+                            <button className="font-bold cursor-pointer" onClick={() => setOpenCreateModal(false)}>X</button>
+                            <h1 className="mt-4 mb-2 text-2xl font-bold">Nova Sala</h1>
 
-                    <form onSubmit={handleSubmit} className="flex flex-col">
-                        <div className="flex w-full gap-5 flex-row">
-                            <div className="w-1/2">
-                                <label htmlFor="nome">Nome da Sala</label>
-                                <input
-                                    type="text"
-                                    value={nomeSala}
-                                    placeholder="Ex: Sala 01"
-                                    onChange={(e) => setNomeSala(e.target.value)}
-                                    required
-                                />
-                            </div>
-                            <div className="w-1/2">
-                                <label htmlFor="capacidade">Capacidade</label>
-                                <input
-                                    type="number"
-                                    value={capacidadeSala}
-                                    onChange={(e) => setCapacidadeSala(Number(e.target.value))}
-                                    required
-                                />
-                            </div>
-                        </div>
-                            <div className="mt-4">
-                                <label htmlFor="responsavel">Responsavel Atual (Opicional)</label>
-                                <select
-                                    value={responsavelSelecionado}
-                                    onChange={(e) => setResponsavelSelecionado(Number(e.target.value))}
-                                    
-                                >
-                                    <option value="">Selecione um responsavel</option>
-                                    {responsaveis.map(resp => (
-                                        <option key={resp.id} value={resp.id}>{resp.nome}</option>
-                                    ))}
-                                </select>
-                            </div>
-                            <h1 className="mt-4 mb-2 text-2xl font-bold">Disponibilidade</h1>
-                            {Object.entries(diasDaSemana).map(([dia , info]) => {
-                                return (
-                                    <div className="mt-4" key={dia}>
-                                        <div className="flex gap-2 items-center">
-                                            <p className="text-xl">
-                                                <strong>{dia}</strong>
-                                            </p>
-                                            <input type="checkbox" 
-                                            style={{width : 15, height : 15}}
-                                            onChange={(e) => (
-                                                setDiasDaSemana({
-                                                    ...diasDaSemana,
-                                                    [dia]  : {...info , open : e.target.checked}
-                                                })
-                                            )}
-                                            checked={info.open} />
-                                        </div>
-
-                                        <div className="flex  flex-row gap-5">
-                                            
-                                            <div className="w-1/2 ml-3">
-                                                <p>Hora Inicio</p>
-                                                <input 
-                                                    type="time" 
-                                                    disabled={!info.open} 
-                                                    value={info.init}
-                                                    onChange={(e) => (
-                                                        setDiasDaSemana({
-                                                            ...diasDaSemana,
-                                                            [dia] : {...info , init : e.target.value} 
-                                                        })
-                                                    )} />
-                                            </div>
-                                            <div className="w-1/2">
-                                                <p>Hora Fim</p>
-                                                <input type="time"
-                                                    disabled={!info.open}
-                                                    value={info.end}
-                                                    onChange={(e) => (
-                                                        setDiasDaSemana({
-                                                            ...diasDaSemana,
-                                                            [dia] : {...info , end : e.target.value}
-                                                        })
-                                                    )} />
-                                            </div>
-                                        </div>
-
+                            <form onSubmit={handleSubmit} className="flex flex-col">
+                                <div className="flex w-full gap-5 flex-row">
+                                    <div className="w-1/2">
+                                        <label htmlFor="nome">Nome da Sala</label>
+                                        <input
+                                            type="text"
+                                            value={nomeSala}
+                                            placeholder="Ex: Sala 01"
+                                            onChange={(e) => setNomeSala(e.target.value)}
+                                            required
+                                        />
                                     </div>
-                                )
+                                    <div className="w-1/2">
+                                        <label htmlFor="capacidade">Capacidade</label>
+                                        <input
+                                            type="number"
+                                            value={capacidadeSala}
+                                            onChange={(e) => setCapacidadeSala(Number(e.target.value))}
+                                            required
+                                        />
+                                    </div>
+                                </div>
+                                    <div className="mt-4">
+                                        <label htmlFor="responsavel">Responsavel Atual (Opicional)</label>
+                                        <select
+                                            value={responsavelSelecionado}
+                                            onChange={(e) => setResponsavelSelecionado(Number(e.target.value))}
+                                            
+                                        >
+                                            <option value="">Selecione um responsavel</option>
+                                            {responsaveis.map(resp => (
+                                                <option key={resp.id} value={resp.id}>{resp.nome}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <h1 className="mt-4 mb-2 text-2xl font-bold">Disponibilidade</h1>
+                                    {Object.entries(diasDaSemana).map(([dia , info]) => {
+                                        return (
+                                            <div className="mt-4" key={dia}>
+                                                <div className="flex gap-2 items-center">
+                                                    <p className="text-xl">
+                                                        <strong>{dia}</strong>
+                                                    </p>
+                                                    <input type="checkbox" 
+                                                    style={{width : 15, height : 15}}
+                                                    onChange={(e) => (
+                                                        setDiasDaSemana({
+                                                            ...diasDaSemana,
+                                                            [dia]  : {...info , open : e.target.checked}
+                                                        })
+                                                    )}
+                                                    checked={info.open} />
+                                                </div>
+
+                                                <div className="flex  flex-row gap-5">
+                                                    
+                                                    <div className="w-1/2 ml-3">
+                                                        <p>Hora Inicio</p>
+                                                        <input 
+                                                            type="time" 
+                                                            disabled={!info.open} 
+                                                            value={info.init}
+                                                            onChange={(e) => (
+                                                                setDiasDaSemana({
+                                                                    ...diasDaSemana,
+                                                                    [dia] : {...info , init : e.target.value} 
+                                                                })
+                                                            )} />
+                                                    </div>
+                                                    <div className="w-1/2">
+                                                        <p>Hora Fim</p>
+                                                        <input type="time"
+                                                            disabled={!info.open}
+                                                            value={info.end}
+                                                            onChange={(e) => (
+                                                                setDiasDaSemana({
+                                                                    ...diasDaSemana,
+                                                                    [dia] : {...info , end : e.target.value}
+                                                                })
+                                                            )} />
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        )
 
 
-                            })}
-                        <input
-                            type="submit"
-                            value="Enviar"
-                            className="enviar"
-                        />
-                    </form>
-                </BaseForm>
+                                    })}
+                                <input
+                                    type="submit"
+                                    value="Enviar"
+                                    className="enviar"
+                                />
+                            </form>
+                        </BaseForm>
+                    </div>
+                </div>
             </div>
+            
+        </div>
+
+        
             
     );
 }
