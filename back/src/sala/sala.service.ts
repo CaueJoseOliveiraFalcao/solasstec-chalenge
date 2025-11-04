@@ -106,4 +106,12 @@ export class SalaService{
         return { message: `Sala "${updatedSala.nome}" atualizada com sucesso.` };
         console.log(data)
     }
+    async isSalaActiveOnDate(salaId : number , diaDaSemanaEscolhido : string):Promise<boolean>{
+        const sala = await this.prisma.sala.findFirst({
+            where : {id : salaId}
+        })
+        const disponibilidadeObj = JSON.parse(String(sala?.disponibilidade || '{}'));
+        
+        return disponibilidadeObj[diaDaSemanaEscolhido].open;
+    }
 }

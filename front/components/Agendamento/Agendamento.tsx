@@ -2,7 +2,7 @@ import api from '../../app/api'
 import { useEffect , useState } from 'react'
 import ErrorComponent from '../Error/ErrorComponent';
 import SucessComponent from '../Sucess/SucessComponent';
-import CreateSalaForm from '../CreateSalaForm/CreateSalaForm';
+import CreateAgendamentoForm from '../CreateAgendamentoForm/CreateAgendamentoForm';
 interface Dia {
   open: boolean
   init: string
@@ -18,7 +18,7 @@ interface DiasDaSemana {
   Domingo?: Dia
 }
 
-export default function Salas(){
+export default function Agendamento(){
 
 
     const [salas , setSalas] = useState<any[]>([])
@@ -224,7 +224,7 @@ export default function Salas(){
             <div className="w-full my-10 p-6 bg-white rounded-2xl border-solid" style={{maxWidth : 1000}}>
                 <div className='flex mb-7 justify-between items-center'>
                     <div>
-                        <h1 className="mt-4 mb-2 text-3xl font-bold">Salas</h1>     
+                        <h1 className="mt-4 mb-2 text-3xl font-bold">Agendamento</h1>     
                         <p className='text-gray-400' >Gerencie  as salas e seus horarios de funcionamento</p>
                     </div>
   
@@ -296,7 +296,7 @@ export default function Salas(){
                 </table>
             </div>
             {openCreateModal && (
-                <CreateSalaForm setOpenCreateModal={setOpenCreateModal}/>
+                <CreateAgendamentoForm setOpenCreateModal={setOpenCreateModal}/>
             )}
 
             {openEditModal && (

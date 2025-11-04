@@ -82,7 +82,7 @@ model Sala_Responsavel {
 
 model Sala_Auditoria{
   id             Int @default(autoincrement()) @id
-  sala           Sala @relation(fields: [sala_id] , references: [id] , onDelete: Cascade)
+  sala           Sala @relation(fields: [sala_id] , references: [id])
   sala_id        Int
   responsavel_id Int?
   data_alterecao DateTime @default(now())
@@ -94,14 +94,16 @@ model Sala_Auditoria{
 
 model Agendamento{
   id            Int @default(autoincrement()) @id
-  visitante     Visitante @relation(fields: [visitante_id] , references: [id])
+  visitante     Visitante @relation(fields: [visitante_id] , references: [id]  , onDelete: Cascade)
   visitante_id  Int
-  sala          Sala @relation(fields: [sala_id] , references: [id])
+  sala          Sala @relation(fields: [sala_id] , references: [id]  , onDelete: Cascade)
   sala_id       Int
   data_agendada DateTime
+  hora_inicio   String @db.VarChar(5)
+  hora_fim      String @db.VarChar(5)
   status        Int @db.SmallInt() @default(1) // 1-pendente2-confirmado3-cancelado4-finalizado
   ativo         Boolean?
-  code          String @db.VarChar(255) //qrcode
+  code          String? @db.VarChar(255) //qrcode
   criado_em     DateTime @default(now())
 
  acesso        Acesso? 

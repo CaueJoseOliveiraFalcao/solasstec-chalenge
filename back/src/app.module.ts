@@ -7,6 +7,7 @@ import { FeriadoModule } from './feriado/feriado.module';
 import { SalaModule } from './sala/sala.module';
 import { ResponsavelSalaModule } from './sala_responsavel/responsavel-sala.module';
 import { SalaAuditoriaModule } from './sala_auditoria/sala-auditoria.module';
+import { AgendamentoModule } from './agendamento/agendamento.module';
 @Module({
   imports: [
     VisitanteModule , 
@@ -14,7 +15,8 @@ import { SalaAuditoriaModule } from './sala_auditoria/sala-auditoria.module';
     FeriadoModule , 
     SalaModule , 
     ResponsavelSalaModule , 
-    SalaAuditoriaModule
+    SalaAuditoriaModule,
+    AgendamentoModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -7,6 +7,7 @@ import { PrismaService } from "src/prisma.service";
 @Module({
     controllers : [FeriadoController],
     providers : [FeriadoService , PrismaService],
+    exports : [FeriadoService],
 })
 
 export class FeriadoModule {}
