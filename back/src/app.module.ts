@@ -8,6 +8,7 @@ import { SalaModule } from './sala/sala.module';
 import { ResponsavelSalaModule } from './sala_responsavel/responsavel-sala.module';
 import { SalaAuditoriaModule } from './sala_auditoria/sala-auditoria.module';
 import { AgendamentoModule } from './agendamento/agendamento.module';
+import { AgendamentoAuditoriaModule } from './agendamento_auditoria/agendamento.module';
 @Module({
   imports: [
     VisitanteModule , 
@@ -17,6 +18,7 @@ import { AgendamentoModule } from './agendamento/agendamento.module';
     ResponsavelSalaModule , 
     SalaAuditoriaModule,
     AgendamentoModule,
+    AgendamentoAuditoriaModule
   ],
   controllers: [AppController],
   providers: [AppService],

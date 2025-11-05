@@ -13,17 +13,6 @@ export class FeriadoService{
         })
         return feriado ? true : false;
     }
-    async getNextDisponibleDate(date: Date): Promise<Date> {
-
-        const data_formatada = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-        data_formatada.setDate(data_formatada.getDate() + 1);
-
-        while (await this.isFeriado(data_formatada)) {
-            data_formatada.setDate(data_formatada.getDate() + 1);
-        }
-        console.log(data_formatada , 'DATA FORMATADA');
-        return(data_formatada);
-    }
     async createFeriado(data : Prisma.FeriadoCreateInput):Promise<{message : string}>{
         try {
             await this.prisma.feriado.create({data});

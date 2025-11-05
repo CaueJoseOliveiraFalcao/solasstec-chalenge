@@ -11,7 +11,7 @@ export class CreateAgendamentoDto {
     sala_id: number;
 
     @IsNotEmpty()
-    data_agendada: Date;
+    data_agendada: string;
 
     @IsString()
     @IsNotEmpty()
@@ -21,4 +21,5 @@ export class CreateAgendamentoDto {
     @IsNotEmpty()
     hora_fim: string;
 
+    status : number;
 }

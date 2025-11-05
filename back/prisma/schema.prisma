@@ -108,7 +108,17 @@ model Agendamento{
 
  acesso        Acesso? 
 }
-
+//criar sem relacionamento/ sem necessiade de linkar nao pode ser apagado nem alterado
+model Agendamento_Auditoria{
+  id            Int @default(autoincrement()) @id
+  visitante_id  Int
+  sala_id       Int 
+  data_agendada DateTime
+  hora_inicio   String @db.VarChar(5)
+  hora_fim      String @db.VarChar(5)
+  code          String? @db.VarChar(255) //qrcode
+  criado_em     DateTime @default(now())
+}
 model Acesso {
   id              Int @default(autoincrement()) @id
   visitante       Visitante @relation(fields: [visitante_id], references: [id])

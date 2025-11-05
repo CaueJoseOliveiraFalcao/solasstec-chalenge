@@ -106,12 +106,31 @@ export class SalaService{
         return { message: `Sala "${updatedSala.nome}" atualizada com sucesso.` };
         console.log(data)
     }
-    async isSalaActiveOnDate(salaId : number , diaDaSemanaEscolhido : string):Promise<boolean>{
+    async isSalaActiveOnDate(salaId : number , dataAgendada : Date):Promise<boolean>{
+        const diasMap = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+        const diaDaSemanaEscolhido = diasMap[dataAgendada.getUTCDay()];
         const sala = await this.prisma.sala.findFirst({
             where : {id : salaId}
         })
-        const disponibilidadeObj = JSON.parse(String(sala?.disponibilidade || '{}'));
-        
+        const disponibilidadeObj = JSON.parse(String(sala?.disponibilidade));
+         
         return disponibilidadeObj[diaDaSemanaEscolhido].open;
     }
+    async getHourOfThisDay(dataAgendadaStr : string , salaId : number):Promise<{init : string , end : string}>{
+        const diasMap = ['Domingo', 'Segunda', 'Terca', 'Quarta', 'Quinta', 'Sexta', 'Sabado'];
+        const [year, month, day] = dataAgendadaStr.split('-').map(Number);
+        const dataAgendada = new Date(Date.UTC(year, month - 1, day));
+        const diaDaSemanaEscolhido = diasMap[dataAgendada.getUTCDay()];
+
+        const sala =  await this.prisma.sala.findFirst({
+            where : {id : salaId}
+        })
+        if (sala){
+          const salaDisponibilidade = JSON.parse(String(sala.disponibilidade))
+          console.log('Disponibilidade da sala oumla:', salaDisponibilidade[diaDaSemanaEscolhido] , diaDaSemanaEscolhido);
+            return { init: salaDisponibilidade[diaDaSemanaEscolhido].init, end: salaDisponibilidade[diaDaSemanaEscolhido].end};
+        }
+        return {init : '' , end : ''};
+    }
+
 }

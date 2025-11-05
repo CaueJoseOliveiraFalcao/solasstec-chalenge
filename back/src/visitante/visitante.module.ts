@@ -8,6 +8,7 @@ import { TipoPrioridadeModule } from "src/tipo_prioridade/tipo_prioridade.module
 @Module({
     controllers : [VisitanteController],
     imports : [TipoPrioridadeModule],
-    providers : [VisitanteService , PrismaService],
+    providers : [VisitanteService , PrismaService , ],
+    exports : [VisitanteService]
 })
 export class VisitanteModule {}
