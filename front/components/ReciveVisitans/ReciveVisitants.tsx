@@ -51,6 +51,7 @@ export default function ReciveVisitants(){
             setAcessoPrioritario(!!obj.descricao || obj.nivel > 0)
             setOpenEditModal(true)
     }
+    //pega prioridade de um usuario
     const GetTipoPrioridadeInfo = (id : number) => {
         const tipo = tiposPrioridades.find((element) => element.id === id);
        return tipo ?
@@ -76,7 +77,7 @@ export default function ReciveVisitants(){
         }
         try {
             const res = await api.post('/visitante/editar' , data)
-            alert('usuario alterado com sucesso')
+            alert('Visitante alterado com sucesso')
             window.location.reload()
 
         } catch (error : any){
@@ -86,6 +87,14 @@ export default function ReciveVisitants(){
             }
         }
 
+    }
+    const alertDelete = (id : Number) => {
+        const confirmDelete = window.confirm(
+            `Todos AGENDAMENTOS desse VISITANTE serão DELETADOS, Tem certeza?`
+        );
+        if(confirmDelete){
+            deleteVisitante(id)
+        }
     }
     const deleteVisitante = async (id : Number) => {
         try {
@@ -106,11 +115,11 @@ export default function ReciveVisitants(){
                         <tr>
                             <th scope="col" className="px-6 py-3">ID</th>
                             <th scope="col" className="px-6 py-3">Nome</th>
-                            <th scope="col" className="px-6 py-3">Documento</th>
+                            <th scope="col" className="px-6 py-3">CPF</th>
                             <th scope="col" className="px-6 py-3">Telefone</th>
                             <th scope="col" className="px-6 py-3">Data Nascimento</th>
-                            <th scope="col" className="px-6 py-3">Descricao</th>
-                            <th scope="col" className="px-6 py-3">Nivel Prioriade</th>
+                            <th scope="col" className="px-6 py-3">Descrição</th>
+                            <th scope="col" className="px-6 py-3">Nível Prioridade</th>
                             <th scope="col" className="px-6 py-3">Editar</th>
                         </tr>
                     </thead>
@@ -182,7 +191,7 @@ export default function ReciveVisitants(){
                 <div className="fixed inset-0 flex items-center justify-center bg-gray-950/50 backdrop-blur-md">
                     <div className="bg-white rounded-2xl p-6 shadow-xl w-full" style={{maxWidth : 900}}>
                         <button
-                            className="font-bold cursor-pointer"
+                            className="font-bold cursor-pointer right-0"
                             onClick={() => setOpenEditModal(false)}
                         >
                             X
@@ -207,7 +216,7 @@ export default function ReciveVisitants(){
                             </div>
                             <div className="flex w-full flex-col">
                                 <div className="flex items-center mt-2">
-                                    <label htmlFor="check">Acesso Prioritario</label>
+                                    <label htmlFor="check">Acesso Prioritário</label>
                                     <input
                                     onChange={(e) => {setAcessoPrioritario(e.target.checked)}} 
                                     checked={acessoPrioritario}
@@ -215,7 +224,7 @@ export default function ReciveVisitants(){
                                 </div>
                                 {acessoPrioritario && (
                                     <>
-                                        <label htmlFor="descricao">Descricao</label>
+                                        <label htmlFor="descricao">Descrição</label>
                                         <input type="text"
                                             value={descricaoPrioridade} 
                                             onChange={(e) => {setDescricaoPrioridade(e.target.value)}} 
@@ -229,11 +238,11 @@ export default function ReciveVisitants(){
                                     </>
 
                                 )}
-                                <button
+                                <button type='button'
                                     className="px-4 py-2 bg-red-600 text-white w-40 mt-4 rounded hover:bg-red-700 transition"
-                                    onClick={() => deleteVisitante(id)}
+                                    onClick={() => alertDelete(id)}
                                 >
-                                    DELETAR
+                                    Deletar Vistante
                                 </button>
                             </div>
                             <input
@@ -241,8 +250,6 @@ export default function ReciveVisitants(){
                                 value="Enviar"
                                 className="enviar"
                                 />
-
-
                     </form>
                     </div>
                 </div> 

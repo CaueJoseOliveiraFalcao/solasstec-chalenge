@@ -1,11 +1,16 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, forwardRef, Inject, Injectable } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 import { Visitante , Prisma } from "generated/prisma";
 import { CreateVisitanteDto } from "./create-visitante.dto";
 import { TipoPrioridadeService } from "src/tipo_prioridade/tipo_prioridade.service";
+import { AgendamentoService } from "src/agendamento/agendamento.service";
 @Injectable()
 export class VisitanteService {
-    constructor(private prisma : PrismaService , private tipoPrioridadeService : TipoPrioridadeService) {}
+    constructor(private prisma : PrismaService , 
+        private tipoPrioridadeService : TipoPrioridadeService,
+        @Inject(forwardRef(() => AgendamentoService))
+        private agedamentoService : AgendamentoService
+    ) {}
 
     async getAllVisitants() : Promise<Visitante[]>{
         const visitants = await this.prisma.visitante.findMany();
@@ -19,37 +24,60 @@ export class VisitanteService {
 
         return !!getUser;
     }
-    async deleteVisitant(ToDeleteId : number):Promise<void> {
-        ToDeleteId = Number(ToDeleteId)
-        const visitante = await this.prisma.visitante.findUnique({
-            where : {id : ToDeleteId}
-        })
+    async deleteVisitant(ToDeleteId: string): Promise<any> {
+        try {
+            const visitante = await this.prisma.visitante.findUnique({
+            where: { id: Number(ToDeleteId) },
+            include: { Agendamentos: true },
+            });
 
-        if (!visitante) {
-            throw new BadRequestException('Visitante não encontrado')
-        }
-        if (visitante.tipo_prioridade_id) {
+            if (!visitante) {
+            throw new BadRequestException('Visitante não encontrado');
+            }
+
+            const agendamentosDoVisitante = visitante.Agendamentos;
+
+            if (agendamentosDoVisitante.length > 0) {
+                for (const agendamento of agendamentosDoVisitante) {
+                const acesso = await this.prisma.acesso.findFirst({
+                    where: { agendamento_id: agendamento.id },
+                });
+
+   
+                if (acesso) {
+                    await this.prisma.acesso.delete({
+                    where: { id: acesso.id },
+                    });
+                }
+
+                await this.prisma.agendamento.delete({
+                    where: { id: agendamento.id },
+                });
+                }
+            }
+            if (visitante.tipo_prioridade_id) {
             await this.prisma.tipo_Prioridade.delete({
                 where: { id: visitante.tipo_prioridade_id },
-            })
+            });
+            }
+
+            await this.prisma.visitante.delete({
+            where: { id: visitante.id },
+            });
+        } catch (error) {
+            console.log('em deletar visitante : ' , error);
+            return error;
         }
-        await this.prisma.visitante.delete({
-            where: { id : ToDeleteId },
-        })
     }
+
     async createVisitante(data:CreateVisitanteDto):Promise<Visitante | undefined>{
         let tipoIdCriado : number | undefined = 0;
 
-        if (data.documento.length != 11){throw new BadRequestException('documento invalido');}
-
         const documentExist = await this.getUserByDocument(data.documento);
-        if(documentExist){throw new BadRequestException('documento ja existe')}
+        if(documentExist){throw new BadRequestException('Já existe um visitante com este documento')}
 
-        //caso checkbox prioridade for acionada
+        //caso visitante seja prioridade
         if (data.is_tipo_prioridade){
-            if (!data.descricao || data.nivel_prioridade === undefined){
-                    throw new BadRequestException('Informacoes relacionada a Priorioridade em falta')
-                }
             const tipoCriado = await this.tipoPrioridadeService.createTipoPrioridade({
                     descricao : data.descricao!,
                     nivel_prioridade : data.nivel_prioridade!,
@@ -80,32 +108,22 @@ export class VisitanteService {
                     ativo: data.ativo,
                 },
             });
-        }catch (error : any) {   
-            throw error;
-        }
-
-async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
-    if (!data.id) {
-        throw new BadRequestException('Id não fornecido');
     }
-    //ja tem ou quer cria uma prioridade , verifica os campos
-    if (data.is_tipo_prioridade) {
-        if (!data.descricao || data.nivel_prioridade === undefined) {
-            throw new BadRequestException('Informações relacionadas à prioridade estão faltando');
-        }
-    }
+    async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
 
     const visitante = await this.prisma.visitante.findUnique({
         where: { id: data.id },
     });
 
-    if (!visitante) return undefined;
+    if (!visitante){
+        console.log(`Editando visitante : id nao encontrado`)
+        return undefined
+    };
 
-    //usa o transaction para lidar com todos os bancos de uma vez
     const editedVisitante = await this.prisma.$transaction(async (prisma) => {
         let tipoPrioridadeId = visitante.tipo_prioridade_id;
 
-        // caso o usuario seja prioridade e queira sair
+        //visitante tem uma prioridade ativa e quer deletar ela
         if (visitante.tipo_prioridade_id && !data.is_tipo_prioridade) {
             await prisma.tipo_Prioridade.delete({
                 where: { id: visitante.tipo_prioridade_id },
@@ -113,7 +131,7 @@ async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
             tipoPrioridadeId = null;
         }
 
-        //caso ele queria atualizar sua prioridade
+        
         if (visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
             await prisma.tipo_Prioridade.update({
                 where: { id: visitante.tipo_prioridade_id },
@@ -125,7 +143,6 @@ async editVisitante(data: CreateVisitanteDto): Promise<Visitante | undefined> {
             });
         }
 
-        // caso ele nao tivesse prioridade e queira criar
         if (!visitante.tipo_prioridade_id && data.is_tipo_prioridade) {
             const newTipo = await prisma.tipo_Prioridade.create({
                 data: {

@@ -30,7 +30,7 @@ export class ResposavelSalaService{
             }
         )
         if (responsavel){
-            throw new BadRequestException('documento ja existente')
+            throw new BadRequestException('Documento ja existente')
         }
 
         try {
@@ -43,15 +43,14 @@ export class ResposavelSalaService{
                     ativo : true,
                 }
             })
-            return {message : 'Responsavel Criado'} 
+            return {message : 'Responsavel criado com sucesso'} 
         } catch (error){
             return {message : error.message}
         }
     }
     async editResponsavel(data : CreateResponsavelSalaDto):Promise<{message : string}>{
-            console.log(data);
             if (!data.id){
-                throw new BadRequestException('Id do responsavel nao prenchido')
+                throw new BadRequestException('Id do responsavel nulo')
             }
             try {
                 const responsavel = await this.prisma.sala_Responsavel.findFirst({
@@ -67,10 +66,10 @@ export class ResposavelSalaService{
                         }
                     })
                 }
-                return {message : 'Responsavel Alterado'}
+                return {message : 'Responsavel alterado com sucesso'}
             } catch (error){
-                console.log(error)
-                return {message : 'erro na edicao'}
+                console.log(`erro na edicao de responsavel ` , error)
+                return {message : 'erro na edicao de responsavel'}
             }
         }
     async deleteResponsavel(responsavelId : number):Promise<{message: string}>{
@@ -90,14 +89,14 @@ export class ResposavelSalaService{
                 await this.prisma.sala_Responsavel.delete({
                     where : {id : responsavel.id}
                 })
-                return {message : `responsavel deletado`}
+                return {message : `Responsavel deletado som sucesso`}
             }catch(error){
-                console.log(error);
-                return {message : `erro interno`}
+                console.log(`erro deletando responsavel` , error);
+                return {message : `erro deletando responsavel`}
             }
 
         }else {
-            throw new BadRequestException('responsavel nao encontrado') 
+            throw new BadRequestException('Responsavel não encontrado') 
         }
     }
 

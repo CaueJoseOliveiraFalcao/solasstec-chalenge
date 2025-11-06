@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { AgendamentoController } from "./agendamento.controller";
 import { AgendamentoService } from "./agendamento.service";
 import { PrismaService } from "src/prisma.service";
@@ -10,8 +10,15 @@ import { AcessoModule } from "src/acesso/acesso.module";
 
 
 @Module({  
-  imports: [FeriadoModule , SalaModule , AgendamentoAuditoriaModule , VisitanteModule , AcessoModule],
+  imports: [FeriadoModule , 
+    SalaModule ,
+    forwardRef(() => VisitanteModule) ,
+    AgendamentoAuditoriaModule , 
+    AcessoModule
+  ],
+  
   controllers: [AgendamentoController],
   providers: [AgendamentoService , PrismaService],
+  exports : [AgendamentoService]
 })
 export class AgendamentoModule {}

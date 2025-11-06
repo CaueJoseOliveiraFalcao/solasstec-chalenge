@@ -1,6 +1,6 @@
 import { useState } from "react"
 import api from "@/app/api"
-import "../CreateVisitantForm/CreateVisitantForm.css"
+import '../GenericInputs.css'
 import BaseForm from "../BaseForm"
 import ErrorComponent from "../Error/ErrorComponent"
 import SucessComponent from "../Sucess/SucessComponent"
@@ -21,7 +21,7 @@ export default function CreateResponsavelForm() {
             await api.post("/responsavel-sala", {
                 nome,
                 documento,
-                valido_de: new Date(validoDe),
+                valido_de: new Date(),
                 valido_ate: validoAte ? new Date(validoAte) : null,
                 ativo: true
             })
@@ -68,11 +68,11 @@ export default function CreateResponsavelForm() {
                         onClose={() => setSuccessPopup({ success: false, titulo: '', desc: '' })}
                     />
                     )}
-                <h1 className="mt-4 mb-2 text-2xl font-bold">Novo Responsavel de Sala</h1>
+                <h1 className="mt-4 mb-2 text-2xl font-bold">Criar responsável de sala</h1>
 
                 <form onSubmit={handleSubmit} className="flex flex-col">
                     <div className="flex justify-around w-full flex-col">
-                            <label htmlFor="nome">Nome do Responsavel</label>
+                            <label htmlFor="nome">Nome do Responsável</label>
                             <input
                                 type="text"
                                 value={nome}
@@ -80,7 +80,7 @@ export default function CreateResponsavelForm() {
                                 required
                             />
 
-                            <label htmlFor="documento">Documento</label>
+                            <label htmlFor="documento">CPF</label>
                             <input
                                 type="text"
                                 value={documento}
@@ -91,25 +91,6 @@ export default function CreateResponsavelForm() {
                             />
                     </div>
 
-                    <div className="flex w-full gap-5 flex-row mt-4">
-                        <div className="w-1/2">
-                            <label htmlFor="validoDe">Valido de</label>
-                            <input
-                                type="date"
-                                value={validoDe}
-                                onChange={(e) => setValidoDe(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="w-1/2">
-                            <label htmlFor="validoAte">Valido ate (Opicional)</label>
-                            <input
-                                type="date"
-                                value={validoAte}
-                                onChange={(e) => setValidoAte(e.target.value)}
-                            />
-                        </div>
-                    </div>
 
                     <input
                         type="submit"

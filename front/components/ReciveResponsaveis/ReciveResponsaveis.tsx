@@ -33,10 +33,10 @@ export default function ReciveResponsaveis(){
         const data = {
             id : idResponsavel,
             nome : nomeResponsavel,
-            //DTO pede que documento e valido_de seja nao nulo mesmo a funcao nao editando ele
+            //se der tempo criar um DTO so de edicao
             documento : '00000000000',
             valido_de : '1',
-            valido_ate : validoAte ? new Date(validoAte) : null,
+            valido_ate : validoAte ? new Date(validoAte) : new Date(),
         }
         try {
             const res = await api.post('/responsavel-sala/edit' , data)
@@ -52,27 +52,24 @@ export default function ReciveResponsaveis(){
     const deleteResponsavel = async (id : Number) => {
         try {
             await api.delete(`/responsavel-sala/${id}`)
-            alert('Responsavel deletado com sucesso')
+            alert('Responsável deletado com sucesso')
             window.location.reload()
         } catch (error: any) {
             console.log(error)
-            alert('Erro ao deletar responsavel')
+            alert('Erro ao deletar responsável ')
         } 
     }
 
     return (
         <div className='flex justify-center'>
             <div className="w-full my-10 p-6 bg-white rounded-2xl border-solid" style={{maxWidth : 1000}}>
-                <h1 className="mt-4 mb-2 text-2xl font-bold">Gerenciar Responsaveis</h1>
+                <h1 className="mt-4 mb-2 text-2xl font-bold">Gerenciar Responsáveis </h1>
                 <table className="w-full text-sm text-left rtl:text-right text-gray-500">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50">
                         <tr>
                             <th scope="col" className="px-6 py-3">ID</th>
                             <th scope="col" className="px-6 py-3">Nome</th>
-                            <th scope="col" className="px-6 py-3">Documento</th>
-                            <th scope="col" className="px-6 py-3">Valido De</th>
-                            <th scope="col" className="px-6 py-3">Valido Ate</th>
-                            <th scope="col" className="px-6 py-3">Ativo</th>
+                            <th scope="col" className="px-6 py-3">CPF</th>
                             <th scope="col" className="px-6 py-3">Editar</th>
                         </tr>
                     </thead>
@@ -83,9 +80,6 @@ export default function ReciveResponsaveis(){
                                     <th scope="row" className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{resp.id}</th>
                                     <td className="px-6 py-4">{resp.nome}</td>
                                     <td className="px-6 py-4">{resp.documento}</td>
-                                    <td className="px-6 py-4">{new Date(resp.valido_de).toLocaleDateString()}</td>
-                                    <td className="px-6 py-4">{resp.valido_ate ? new Date(resp.valido_ate).toLocaleDateString() : '-'}</td>
-                                    <td className="px-6 py-4">{resp.ativo ? 'Sim' : 'Nao'}</td>
                                     <td className="px-6 py-4">
                                         <button
                                             onClick={() => OpenModal(resp)}
@@ -112,16 +106,15 @@ export default function ReciveResponsaveis(){
                         <form onSubmit={Submit} className="flex flex-col">
                             <label>Nome</label>
                             <input  type="text" value={nomeResponsavel} onChange={e => setNomeResponsavel(e.target.value)} required />
-                            <label>Valido ate</label>
-                            <input type="date" value={validoAte} onChange={e => setValidoAte(e.target.value)} />
-                            <input type="submit" value="Enviar" className="enviar mt-4" />
-                        </form>
-                        <button
+                        <button type='button'
                             className="px-4 py-2 bg-red-600 text-white w-40 mt-4 rounded hover:bg-red-700 transition"
                             onClick={() => deleteResponsavel(idResponsavel)}
                         >
                             DELETAR
                         </button>
+                            <input type="submit" value="Enviar" className="enviar mt-4" />
+                        </form>
+
                     </div>
                 </div>
             )}

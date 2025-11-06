@@ -4,13 +4,16 @@ import { useEffect , useState } from 'react'
 export default function ReciveFeriados(){
     const [feriados , setFeriados] = useState<any[]>([])
     const [openEditModal , setOpenEditModal] = useState(false);
-
+    const [mapTipoFeriado , setMapTipoFeriado] = useState({
+        1 : 'Nacional',
+        2 : 'Estadual',
+        3 : 'Municipal'
+    })
     //Variaveis para o Modal de edicao
     const [idFeriado , setIdFeriado] = useState(0);
     const [dataFeriado , setDataFeriado] = useState('');
     const [tipoFeriado , setTipoFeriado] = useState(0);
     const [descricaoFeriado , setDescricao] = useState('');
-
 
     useEffect(() => {
         GetFeriados();
@@ -71,10 +74,9 @@ export default function ReciveFeriados(){
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50  ">
                         <tr>
                             <th scope="col" className="px-6 py-3">ID</th>
-                            <th scope="col" className="px-6 py-3">Data_Feriado</th>
-                            <th scope="col" className="px-6 py-3">Descricao</th>
-                            <th scope="col" className="px-6 py-3">Tipo_Feriado</th>
-                            <th scope="col" className="px-6 py-3">Criado_Em</th>
+                            <th scope="col" className="px-6 py-3">Data DO Feriado</th>
+                            <th scope="col" className="px-6 py-3">descrição</th>
+                            <th scope="col" className="px-6 py-3">Tipo DO Feriado</th>
                             <th scope="col" className="px-6 py-3">Editar</th>
                         </tr>
                     </thead>
@@ -87,7 +89,7 @@ export default function ReciveFeriados(){
                                     {feriado.id}
                                 </th>
                                 <td className="px-6 py-4">
-                                    {new Date(feriado.data).toLocaleDateString()}
+                                    {new Date(feriado.data).toISOString().split('T')[0]}
                                 </td>
                                 <td className="px-6 py-4">
                                     {feriado.descricao}
@@ -95,9 +97,6 @@ export default function ReciveFeriados(){
                                 <td className="px-6 py-4">
                                     {feriado.tipo}
                                 </td>
-                                <td className="px-6 py-4">
-                                    {new Date(feriado.criado_em).toLocaleDateString()}
-                                </td> 
                                 <td className="px-6 py-4">
                                 <button
                                 onClick={() => OpenModal({
@@ -141,17 +140,17 @@ export default function ReciveFeriados(){
                         </button>
                         <form action="POST" onSubmit={(e) => Submit(e)} className="flex flex-col">
                             <div className="flex justify-around w-full flex-col">
-                                <label htmlFor="nome">Data : </label>
+                                <label htmlFor="nome">Data</label>
                                 <input type="date" 
                                     value={dataFeriado} 
                                     onChange={(e) => {setDataFeriado(e.target.value)}} 
                                     required />
-                                <label htmlFor="numero">Descricao</label>
+                                <label htmlFor="numero">Descrição</label>
                                 <input type="text" 
                                     value={descricaoFeriado} 
                                     onChange={(e) => {setDescricao(e.target.value)}}                         
                                     required/>
-                                <label htmlFor="data_nascimento">Tipo (nacional = 1 , estadual = 2 , 3 = municipal)</label>
+                                <label htmlFor="data_nascimento">Tipo de Feriado 1 - Nacional, 2 - Estadual, 3 - Municipal</label>
                                 <input 
                                     onChange={(e) => setTipoFeriado(Number(e.target.value))}
                                     min={0}
@@ -159,19 +158,20 @@ export default function ReciveFeriados(){
                                     value={tipoFeriado}
                                     type="number" />
                             </div>
-
+                            <button
+                            type='button'
+                                    className="px-4 py-2 bg-red-600 text-white w-40 mt-4 rounded hover:bg-red-700 transition"
+                                    onClick={() => deleteFeriado(idFeriado)}
+                                >
+                                    Deletar Feriado
+                                </button>
                             <input
                                 type="submit"
                                 value="Enviar"
                                 className="enviar"
                                 />
                         </form>
-                            <button
-                                    className="px-4 py-2 bg-red-600 text-white w-40 mt-4 rounded hover:bg-red-700 transition"
-                                    onClick={() => deleteFeriado(idFeriado)}
-                                >
-                                    DELETAR
-                                </button>
+
                     </div>
                 </div> 
             )}

@@ -18,7 +18,7 @@ import {Visitante } from "generated/prisma";
             return this.visitanteService.getAllVisitants()
         }
         @Delete(":id")
-        async deleteVisitant(@Param("id") id :number):Promise<{message : string}> {
+        async deleteVisitant(@Param("id") id :string):Promise<{message : string}> {
             await this.visitanteService.deleteVisitant(id);
             return { message: 'Visitante deletado com sucesso' };
         }

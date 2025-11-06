@@ -21,7 +21,7 @@ export class SalaService{
             data : {responsavel_id : null}
         })
         } catch (error) {
-            throw new BadRequestException('Erro na exclusao de responsavelId em Sala');
+            throw new BadRequestException('Erro ao excluir o campo responsavelId da sala.');
         }
 
     }
@@ -33,11 +33,11 @@ export class SalaService{
     }
     async createSala(data : CreateSalaDto):Promise<{message : string}>{
         const DuplicateName = await this.nameExists(data.nome);
-        if(DuplicateName) {throw new ConflictException('Nome ja Existe')};
+        if(DuplicateName) {throw new ConflictException('Já existe uma sala com este nome.')};
     
         if(data.responsavel_id){
             const VerifyResponsavelExist = await this.responsavelService.verifyResponsavelExist(Number(data.responsavel_id))
-            if (!VerifyResponsavelExist) {throw new NotFoundException('Responsavel Nao existe')}
+            if (!VerifyResponsavelExist) {throw new NotFoundException('Responsavel Não existe')}
         }
         try {
             const newSala = await this.prisma.sala.create({
@@ -50,7 +50,7 @@ export class SalaService{
                     ativo : true,
                 }
             });
-            return {message : 'Sala Criada'}
+            return {message : 'Sala criada com sucesso'}
         } catch (error) {
             console.log(error);
             return {message : error.message}
@@ -63,7 +63,34 @@ export class SalaService{
         })
         return allSalasWithResponse;
     }
+    async deleteSala(salaId: number): Promise<void> {
+        try {
+        const sala = await this.prisma.sala.findUnique({
+            where: { id: salaId },
+            include: {
+            Agendamentos: true,
+            Acessos: true,
+            auditorias: true,
+            },
+        });
 
+        if (!sala) {
+            throw new BadRequestException('Sala não encontrada');
+        }
+
+        await this.prisma.$transaction(async (tx) => {
+            await tx.agendamento.deleteMany({ where: { sala_id: salaId } });
+            await tx.acesso.deleteMany({ where: { sala_id: salaId } });
+            await tx.sala_Auditoria.deleteMany({ where: { sala_id: salaId } });
+            await tx.sala.delete({ where: { id: salaId } });
+        });
+
+        console.log(`Sala e seus registros relacionados foram deletados com sucesso`);
+        } catch (error) {
+        console.error('Erro ao deletar sala:', error);
+        throw new BadRequestException('Erro ao deletar sala');
+        }
+}
     async editSalas(data : UpdateSalaDto):Promise<{message : string}>{
         const existingSala = await this.prisma.sala.findFirst({
             where: {
@@ -76,8 +103,9 @@ export class SalaService{
         }
         // o novo nome existe em outra sala que nao seja a sendo editada no momento
         if (existingSala && existingSala.id !== data.id) {
-            throw new ConflictException('Ja existe outra sala com esse nome.')
+        throw new ConflictException('Já existe outra sala com este nome.');
         }
+
         const updatedSala = await this.prisma.sala.update({
             where: { id: data.id },
             data: {
@@ -87,6 +115,8 @@ export class SalaService{
                 responsavel_id: data.responsavel_id || null,
             },
         });
+
+
         const existChangeDisponibilidade = 
         !!(data.alteracoes?.alteracoes_de_disponibilidade && 
             Object.entries(data.alteracoes.alteracoes_de_disponibilidade).length);
@@ -94,7 +124,7 @@ export class SalaService{
         const existChangeResponsavel =
         !!(data.alteracoes?.alteracoes_de_responsavel &&
             Object.entries(data.alteracoes.alteracoes_de_responsavel).length);
-
+        //verifica se horario ou responsavel_Sala mudou
         if (existChangeDisponibilidade || existChangeResponsavel){
             await this.salaAuditoriaService.create({
             sala_id: data.id,
@@ -103,7 +133,7 @@ export class SalaService{
             });
         }
 
-        return { message: `Sala "${updatedSala.nome}" atualizada com sucesso.` };
+        return { message: `Sala atualizada com sucesso.` };
         console.log(data)
     }
     async isSalaActiveOnDate(salaId : number , dataAgendada : Date):Promise<boolean>{
@@ -127,7 +157,6 @@ export class SalaService{
         })
         if (sala){
           const salaDisponibilidade = JSON.parse(String(sala.disponibilidade))
-          console.log('Disponibilidade da sala oumla:', salaDisponibilidade[diaDaSemanaEscolhido] , diaDaSemanaEscolhido);
             return { init: salaDisponibilidade[diaDaSemanaEscolhido].init, end: salaDisponibilidade[diaDaSemanaEscolhido].end};
         }
         return {init : '' , end : ''};

@@ -17,9 +17,7 @@ interface DiasDaSemana {
   Sabado?: Dia
   Domingo?: Dia
 }
-
 export default function Salas(){
-
 
     const [salas , setSalas] = useState<any[]>([])
 
@@ -56,7 +54,8 @@ export default function Salas(){
     const [diasDaSemanaAntigo , setDiasDaSemanaAntigo] = useState<DiasDaSemana>({})
 
     const [todosResponsaveisDisponiveis , setResponsaveis] = useState<any[]>([])
-    //caso responsavel antigo seja diferente do selecionado back muda
+
+    //caso responsavel antigo seja diferente do selecionado backend cria auditoria
     const [responsavelAntigoId, setResponsavelAntigoId] = useState<number | null>(null);
     const [responsavelId, setResponsavelId] = useState<number | null>(null);
     const [responsavelSelecionado, setResponsavelSelecionado] = useState<number | ''>('')
@@ -208,16 +207,20 @@ export default function Salas(){
         }
     }
 
-    const deleteResponsavel = async (id : Number) => {
-        try {
-            await api.delete(`/responsavel-sala/${id}`)
-            alert('Responsavel deletado com sucesso')
-            window.location.reload()
-        } catch (error: any) {
-            console.log(error)
-            alert('Erro ao deletar responsavel')
-        } 
-    }
+    const deleteSala = async (id: number): Promise<void> => {
+        const confirm = window.confirm('Ao excluir esta sala, todos os agendamentos vinculados a ela serão removidos');
+            if(confirm){
+                try {
+                    await api.delete(`/sala/${id}`);
+                    alert(`Sala deletada com sucesso`);
+                    window.location.reload();
+                } catch (error: any) {
+                    console.error('Erro ao deletar sala:', error);
+                    alert('Erro ao deletar sala');
+                }
+            }
+        };
+
 
     return (
         <div className='flex justify-center'>
@@ -225,7 +228,7 @@ export default function Salas(){
                 <div className='flex mb-7 justify-between items-center'>
                     <div>
                         <h1 className="mt-4 mb-2 text-3xl font-bold">Salas</h1>     
-                        <p className='text-gray-400' >Gerencie  as salas e seus horarios de funcionamento</p>
+                        <p className='text-gray-400' >Gerencie as salas e seus horarios de funcionamento</p>
                     </div>
   
                         <button
@@ -239,11 +242,11 @@ export default function Salas(){
                         <tr>
                             <th scope="col" className="px-6 py-3">ID</th>
                             <th scope="col" className="px-6 py-3">Nome Sala</th>
-                            <th scope="col" className="px-6 py-3">Responsavel</th>
+                            <th scope="col" className="px-6 py-3">responsável</th>
                             <th scope="col" className="px-6 py-3">Capacidade</th>
                             <th scope="col" className="px-6 py-3">Horarios</th>
                             <th scope="col" className="px-6 py-3">Criada Em</th>
-                            <th scope="col" className="px-6 text-right py-3">Acoes</th>
+                            <th scope="col" className="px-6 text-right py-3">ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -277,7 +280,7 @@ export default function Salas(){
                                                 Editar
                                             </button>
                                             <button
-                                                onClick={() => deleteResponsavel(resp.id)}
+                                                onClick={() => deleteSala(resp.id)}
                                                 className="px-3 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors duration-200"
                                             >
                                                 Excluir
@@ -289,7 +292,7 @@ export default function Salas(){
                             ))
                         ) : (
                             <tr>
-                                <td colSpan={7} className="px-6 py-4 text-center text-gray-400">Nenhuma Sala encontrada</td>
+                                <td colSpan={7} className="px-6 py-4 text-center text-gray-400">Nenhuma sala encontrada</td>
                             </tr>
                         )}
                     </tbody>
@@ -345,7 +348,7 @@ export default function Salas(){
                                 </div>
                             </div>
                                 <div className="mt-4">
-                                    <label htmlFor="responsavel">Responsavel Atual (Opicional)</label>
+                                    <label htmlFor="responsavel">Responsável Atual (Opicional)</label>
                                         <select
                                         value={responsavelSelecionado}
                                         onChange={(e) => {
@@ -354,7 +357,7 @@ export default function Salas(){
                                             setResponsavelId(novoId);
                                         }}
                                         >
-                                        <option value="">Selecione um responsavel</option>
+                                        <option value="">Selecione um responsável</option>
                                         {todosResponsaveisDisponiveis.map(resp => (
                                             <option key={resp.id} value={resp.id}>{resp.nome}</option>
                                         ))}

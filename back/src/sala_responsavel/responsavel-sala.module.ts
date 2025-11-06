@@ -5,7 +5,6 @@ import { ResponsavelSalaController } from "./responsavel-sala.controller";
 import { SalaModule } from "src/sala/sala.module";
 
 @Module({
-    //dependecia circular com sala
     imports :[forwardRef(()=>SalaModule)],
     controllers : [ResponsavelSalaController],
     providers : [ResposavelSalaService , PrismaService],

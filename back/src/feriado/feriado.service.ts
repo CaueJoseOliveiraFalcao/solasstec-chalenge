@@ -6,13 +6,15 @@ import { CreateFeriadoDto } from "./create-feriado.dto";
 @Injectable()
 export class FeriadoService{
     constructor(private prisma : PrismaService){}
-
+    
     async isFeriado(date : Date):Promise<boolean>{
         const feriado = await this.prisma.feriado.findFirst({
             where : {data : date}
         })
         return feriado ? true : false;
     }
+
+
     async createFeriado(data : Prisma.FeriadoCreateInput):Promise<{message : string}>{
         try {
             await this.prisma.feriado.create({data});
@@ -31,7 +33,6 @@ export class FeriadoService{
     }
 
     async editFeriado(data : CreateFeriadoDto):Promise<{message : string}>{
-        console.log(data);
         if (!data.id_feriado){
             throw new BadRequestException('Id do feriado nao prenchido')
         }
@@ -45,22 +46,22 @@ export class FeriadoService{
                     data : {
                         data : new Date(data.data),
                         descricao : data.descricao,
-                        tipo : data.tipo == 0 ? null : data.tipo ,
+                        tipo : data.tipo ,
                         ativo : data.ativo,
                     }
                 })
             }
-            return {message : 'Feriado alterado'}
+            return {message : 'Feriado alterado com sucesso'}
         } catch (error){
-            console.log(error)
-            return {message : 'erro na criacao'}
+            console.log('Erro na criação do feriado' , error)
+            return {message : 'Erro na criação do feriado'}
         }
     }
 
     async deleteFeriado(feriadoId : number):Promise<{message: string}>{
         feriadoId = Number(feriadoId);
         if (feriadoId === null){
-            throw new BadRequestException('id nao fornecido')
+            throw new BadRequestException('Id não fornecido')
         }
         const feriado = await this.prisma.feriado.findFirst({
             where : {id : feriadoId}
@@ -71,14 +72,14 @@ export class FeriadoService{
                 await this.prisma.feriado.delete({
                     where : {id : feriado.id}
                 })
-                return {message : `feriado deletado`}
+                return {message : `Feriado deletado com sucesso`}
             }catch(error){
-                console.log(error);
-                return {message : `erro interno`}
+                console.log(error , `erro deletando feriado interno`);
+                return {message : `erro deletando feriado interno`}
             }
 
         }else {
-            throw new BadRequestException('feriado nao encontrado') 
+            throw new BadRequestException('Feriado não encontrado') 
         }
     }
 }

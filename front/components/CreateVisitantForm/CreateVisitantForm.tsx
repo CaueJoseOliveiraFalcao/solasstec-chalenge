@@ -1,8 +1,6 @@
-import axios from "axios";
 import { useState , useEffect } from "react";
-import { Axios } from "axios";
 import api from '../../app/api'
-import './CreateVisitantForm.css'
+import '../GenericInputs.css'
 import ErrorComponent from "../Error/ErrorComponent";
 import SucessComponent from "../Sucess/SucessComponent";
 import BaseForm from "../BaseForm";
@@ -20,7 +18,7 @@ export default function CreateVisitantForm(){
     const [date , setDate] = useState('');
 
     //caso usuario cancela ser prioridade , reseta os campos se tiver prenchido
-        const MudaCheckAcessoPrioritario = (value : boolean) => {
+    const MudaCheckAcessoPrioritario = (value : boolean) => {
             if (value === false){
                 setAcessoPrioritario(value);
                 setDescricaoPrioridade('');
@@ -45,9 +43,44 @@ export default function CreateVisitantForm(){
             setNivelPrioridade(3);
         }
     }
+    const validaCPF = (cpf: string)=> {
+        cpf = cpf.replace(/[^\d]+/g, '');
+
+        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+
+        let soma = 0;
+        for (let i = 0; i < 9; i++) {
+            soma += parseInt(cpf.charAt(i)) * (10 - i);
+        }
+
+        let resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(9))) return false;
+
+        soma = 0;
+        for (let i = 0; i < 10; i++) {
+            soma += parseInt(cpf.charAt(i)) * (11 - i);
+        }
+
+        resto = (soma * 10) % 11;
+        if (resto === 10 || resto === 11) resto = 0;
+        if (resto !== parseInt(cpf.charAt(10))) return false;
+
+        return true;
+}
 
     const Submit = async (e : any) => {
         e.preventDefault();
+        const valdateCpf = validaCPF(document);
+        if (!valdateCpf) {
+            setErroPopup({
+                error : true,
+                titulo : 'Erro',
+                desc : 'CPF inválido'
+            })
+            setDocument('');
+            return;
+        }
         setErroPopup({
             error: false,
             titulo: '',
@@ -56,8 +89,8 @@ export default function CreateVisitantForm(){
         if(acessoPrioritario && nivelPrioridade === 0){
             setErroPopup({
                 error : true , 
-                titulo : 'Nivel Prioridade' , 
-                desc : 'informe o nivel de prioridade'
+                titulo : 'Nível de Prioridade' , 
+                desc : 'Informe o nível de prioridade'
             })
             return
         }
@@ -76,8 +109,8 @@ export default function CreateVisitantForm(){
             setSuccessPopup({
                 success: true,
                 titulo: 'Sucesso!',
-                desc: 'Usuario Criado Com Sucesso.',
-            });
+                desc: 'Usuário criado com sucesso.',
+            })
             //reseta todos campos 
             setName('')
             setDocument('')
@@ -135,26 +168,28 @@ export default function CreateVisitantForm(){
                             value={name} 
                             onChange={(e) => {setName(e.target.value)}} 
                             required />
-                        <label htmlFor="documento" >Documento</label>
+                        <label htmlFor="documento" >CPF</label>
                         <input type="text" 
                             value={document} 
                             onChange={(e) => {setDocument(e.target.value)}} 
-                            required maxLength={11} minLength={11} />
+                            required maxLength={11} minLength={11}  />
+                        <label htmlFor="data_nascimento">Data de Nascimento</label>
+                        <input 
+                            onBlur={(e) => TemMaisDe60(e.target.value)} 
+                            onChange={(e) => setDate(e.target.value)}
+                            max={new Date().toISOString().split('T')[0]}
+                            min={new Date(new Date().setFullYear(new Date().getFullYear() - 100)).toISOString().split('T')[0]}
+                            value={date}
+                            required type="date" />
                         <label htmlFor="numero">Telefone</label>
                         <input type="text" 
                             value={phone} 
                             onChange={(e) => {setPhone(e.target.value)}}                         
                             required/>
-                        <label htmlFor="data_nascimento">Data Nascimento</label>
-                        <input 
-                            onBlur={(e) => TemMaisDe60(e.target.value)} 
-                            onChange={(e) => setDate(e.target.value)}
-                            value={date}
-                            required type="date" />
                     </div>
                     <div className="flex w-full flex-col">
                         <div className="flex items-center mt-2">
-                            <label htmlFor="check">Acesso Prioritario</label>
+                            <label htmlFor="check">Acesso Prioritário</label>
                             <input
                             onChange={(e) => {MudaCheckAcessoPrioritario(e.target.checked)}} 
                             checked={acessoPrioritario}
@@ -162,12 +197,12 @@ export default function CreateVisitantForm(){
                         </div>
                         {acessoPrioritario && (
                             <>
-                                <label htmlFor="descricao">Descricao</label>
+                                <label htmlFor="descricao">Descrição</label>
                                 <input type="text"
                                     value={descricaoPrioridade} 
                                     onChange={(e) => {setDescricaoPrioridade(e.target.value)}} 
                                     required  />
-                                <label htmlFor="nivel_prioridade">Nivel de Acesso (1 a 3)</label>
+                                <label htmlFor="nivel_prioridade">Nível de Acesso (1 a 3)</label>
                                 <input type="number" 
                                     min={0}
                                     max={3}

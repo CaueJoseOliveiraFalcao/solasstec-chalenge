@@ -82,8 +82,8 @@ model Sala_Responsavel {
 
 model Sala_Auditoria{
   id             Int @default(autoincrement()) @id
-  sala           Sala @relation(fields: [sala_id] , references: [id])
-  sala_id        Int
+  sala           Sala? @relation(fields: [sala_id] , references: [id])
+  sala_id        Int?
   responsavel_id Int?
   data_alterecao DateTime @default(now())
   alteracao      Json
@@ -94,9 +94,9 @@ model Sala_Auditoria{
 
 model Agendamento{
   id            Int @default(autoincrement()) @id
-  visitante     Visitante @relation(fields: [visitante_id] , references: [id]  , onDelete: Cascade)
+  visitante     Visitante @relation(fields: [visitante_id] , references: [id])
   visitante_id  Int
-  sala          Sala @relation(fields: [sala_id] , references: [id]  , onDelete: Cascade)
+  sala          Sala @relation(fields: [sala_id] , references: [id])
   sala_id       Int
   data_agendada DateTime
   hora_inicio   String @db.VarChar(5)
@@ -128,7 +128,7 @@ model Acesso {
   entrada_em      DateTime?
   saida_em        DateTime?
   ativo           Boolean?
-
+  code            String?
   agendamento     Agendamento @relation(fields: [agendamento_id] , references: [id]) 
   agendamento_id  Int @unique
 }

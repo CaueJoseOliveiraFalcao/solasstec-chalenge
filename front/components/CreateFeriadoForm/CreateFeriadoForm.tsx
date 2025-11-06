@@ -1,9 +1,10 @@
 import { useState } from "react";
 import api from "../../app/api";
-import '../CreateVisitantForm/CreateVisitantForm.css'
+import '../GenericInputs.css'
 import ErrorComponent from "../Error/ErrorComponent";
 import SucessComponent from "../Sucess/SucessComponent";
 import BaseForm from "../BaseForm";
+
 export default function CreateFeriadoForm() {
     const [data, setData] = useState('');
     const [descricao, setDescricao] = useState('');
@@ -12,7 +13,7 @@ export default function CreateFeriadoForm() {
     const [errorPopup, setErroPopup] = useState({ error: false, titulo: '', desc: '' });
     const [successPopup, setSuccessPopup] = useState({ success: false, titulo: '', desc: '' });
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e : any) => {
         e.preventDefault();
 
         try {
@@ -36,7 +37,7 @@ export default function CreateFeriadoForm() {
     };
 
     return (
-        <div className="flex justify-center items-center flex-col">
+        <div className="flex justify-center items-center mt-5 flex-col">
             <BaseForm>
                     {errorPopup.error && (
                     <ErrorComponent
@@ -64,7 +65,7 @@ export default function CreateFeriadoForm() {
                             required
                         />
 
-                        <label htmlFor="descricao">Descricao</label>
+                        <label htmlFor="descricao">Descrição</label>
                         <input
                             type="text"
                             value={descricao}
@@ -72,7 +73,7 @@ export default function CreateFeriadoForm() {
                             required
                         />
 
-                        <label htmlFor="tipo">Tipo (nacional = 1  estadual = 2  municipal = 3)</label>
+                        <label htmlFor="tipo">Tipo de Feriado 1 - Nacional, 2 - Estadual, 3 - Municipal</label>
                         <input
                             type="number"
                             value={tipo}

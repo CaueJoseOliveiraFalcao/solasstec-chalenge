@@ -7,17 +7,8 @@ export class AcessoController {
   constructor(private readonly acessoService: AcessoService) {}
 
   @Post()
-  async create(@Body() data: CreateAcessoDto) {
-    return this.acessoService.create(data);
+  async validate(@Body() data : {acessCode : string}) {
+    return this.acessoService.registrarEntrada(data);
   }
 
-  @Post('validate')
-  async validate(@Body() data: string) {
-    return this.acessoService.validateAcess(data);
-  }
-
-  @Get()
-  async findAll() {
-    return this.acessoService.findAll();
-  }
 }

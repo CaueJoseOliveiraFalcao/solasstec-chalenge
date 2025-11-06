@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../app/api";
-import '../CreateVisitantForm/CreateVisitantForm.css'
+import '../GenericInputs.css'
 import ErrorComponent from "../Error/ErrorComponent";
 import BaseForm from "../BaseForm";
 interface Visitante {
@@ -59,7 +59,6 @@ export default function CreateAgendamentoForm({ setOpenCreateModal } : ModalFunc
         }
     }
     const getHorasDaData = async () => {
-        console.log('Buscando horas disponíveis para a data:', dataAgendada);
 
         if (!dataAgendada || !salaSelecionada) {
             alert('Por favor, selecione uma sala e uma data antes de verificar a disponibilidade.');
@@ -72,14 +71,12 @@ export default function CreateAgendamentoForm({ setOpenCreateModal } : ModalFunc
             data_agendada: dataAgendada,
             });
 
-            console.log('Resposta da API:', response.data);
-
             // Caso a data seja inválida e o backend retorne uma nova data sugerida
             if (response.data.action === 'insertNewDateAutomaticly') {
                 alert(`Data selecionada não é válida. Próxima data disponível: ${response.data.data}`);
                 const novaData = response.data.data;
                 setDataAgendada(novaData);
-                //manda requisisao denovo pra prencher hoarios
+                //manda requisicao denovo pra prencher horarios
                 response = await api.post('/agendamento/available-hours', {
                     sala_id: salaSelecionada,
                     data_agendada: novaData,
@@ -88,8 +85,6 @@ export default function CreateAgendamentoForm({ setOpenCreateModal } : ModalFunc
 
             setDisponibilidadeVerificada(true);
             setAvalibleHours(response.data);
-
-            console.log('Horas disponíveis recebidas:', response.data);
         } catch (error) {
             console.error('Erro ao buscar horas disponíveis:', error);
         }
@@ -165,15 +160,14 @@ export default function CreateAgendamentoForm({ setOpenCreateModal } : ModalFunc
                 hora_inicio : horaInicio,
                 hora_fim : horaFim,
             }
-            console.log(data);
             const response = await api.post('/agendamento', data);
             if (response.data.action === 'insertNewDateAutomaticly'){
                 alert(`Data selecionado Nao valida Proxima data disponivel : ${response.data.data}`);
                 setDataAgendada(response.data.data);
+                return;
             }
-            setTimeout(() => {
-                console.log('Agendamento criado com sucesso!');
-            }, 2000)
+            alert('Agendamento criado com sucesso!');
+            window.location.reload();
         }catch (error : any){
             if (error.response && error.response.data) {
                 const { message, error: errType } = error.response.data;
@@ -192,7 +186,7 @@ export default function CreateAgendamentoForm({ setOpenCreateModal } : ModalFunc
                     <div className="flex justify-center items-center  flex-col">
                         <BaseForm>
                             <button className="font-bold cursor-pointer" onClick={() => setOpenCreateModal(false)}>X</button>
-                            <h1 className="mt-4 mb-2 text-2xl font-bold">Novo Agendamento</h1>
+                            <h1 className="mt-4 mb-2 text-2xl font-bold">Criar Agendamento</h1>
 
                             <form onSubmit={handleSubmit} className="flex flex-col">
                                 <div className="flex w-full gap-5 flex-row">

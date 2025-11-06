@@ -85,11 +85,8 @@ export default function Agendamento(){
 
                         {/* Data */}
                         <td className="px-6 py-4">
-                            {new Date(agendamento.data_agendada).toLocaleDateString('pt-BR', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                            })}
+                            {new Date(agendamento.data_agendada).toISOString().split('T')[0]}
+
                         </td>
 
                         {/* Horário */}
@@ -147,7 +144,7 @@ export default function Agendamento(){
                           <div className="flex flex-col items-center mt-6">
                             <h2 className="text-xl font-bold mb-4">QR Code de Acesso</h2>
                             <QRCodeCanvas
-                            value={(acessoSelecionado.code)} // ou apenas acessoSelecionado.code se quiser só o UUID
+                            value={(acessoSelecionado.code)}
                             size={220}
                             includeMargin={true}
                             bgColor="#ffffff"

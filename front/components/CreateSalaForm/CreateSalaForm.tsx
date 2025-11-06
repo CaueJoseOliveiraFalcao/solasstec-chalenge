@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../../app/api";
-import '../CreateVisitantForm/CreateVisitantForm.css'
+import '../GenericInputs.css'
 import ErrorComponent from "../Error/ErrorComponent";
 import BaseForm from "../BaseForm";
 import SucessComponent from "../Sucess/SucessComponent";
@@ -58,12 +58,6 @@ export default function CreateSalaForm({ setOpenCreateModal } : ModalFunction) {
         try {
             const response = await api.get('responsavel-sala')
             console.log(response.data.length);
-            if(response.data.length === 0){
-                const ok = window.confirm('Sem Responsáveis Cadastrados. Adicione algum na página a seguir.');
-                if (ok) {
-                    window.location.href = '/responsavel';
-                }
-            }
             setResponsaveis(response.data);
         } catch (error) {
             console.log(error);
@@ -80,25 +74,14 @@ export default function CreateSalaForm({ setOpenCreateModal } : ModalFunction) {
                 "ativo" : true,
             }
             await api.post('/sala', data);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setSuccessPopup({ success: true, titulo: 'Sucesso!', desc: 'Sala adicionada com sucesso' });
-            setTimeout(() => {
-                window.location.reload();
-            }, 2000)
+            alert('Sala adicionada com sucesso');
+            window.location.reload();
         }catch (error : any){
             if (error.response && error.response.data) {
                 const { message, error: errType } = error.response.data;
-                setErroPopup({
-                    error: true,
-                    titulo: 'Error',
-                    desc: message || 'Ocorreu um erro ao enviar.',
-                });
+                alert(message || 'Ocorreu um erro ao enviar');
             } else {
-                setErroPopup({
-                    error: true,
-                    titulo: 'Erro',
-                    desc: 'Não foi possível conectar ao servidor.',
-                });
+                alert('Erro de conexão');
             }
         }
     };
@@ -126,7 +109,7 @@ export default function CreateSalaForm({ setOpenCreateModal } : ModalFunction) {
                             />
                             )}
                             <button className="font-bold cursor-pointer" onClick={() => setOpenCreateModal(false)}>X</button>
-                            <h1 className="mt-4 mb-2 text-2xl font-bold">Nova Sala</h1>
+                            <h1 className="mt-4 mb-2 text-2xl font-bold">Criar Sala</h1>
 
                             <form onSubmit={handleSubmit} className="flex flex-col">
                                 <div className="flex w-full gap-5 flex-row">
@@ -151,7 +134,7 @@ export default function CreateSalaForm({ setOpenCreateModal } : ModalFunction) {
                                     </div>
                                 </div>
                                     <div className="mt-4">
-                                        <label htmlFor="responsavel">Responsavel Atual (Opicional)</label>
+                                        <label htmlFor="responsavel">Responsável Atual (Opicional)</label>
                                         <select
                                             value={responsavelSelecionado}
                                             onChange={(e) => setResponsavelSelecionado(Number(e.target.value))}

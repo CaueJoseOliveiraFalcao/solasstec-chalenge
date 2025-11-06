@@ -1,4 +1,4 @@
-import { IsBoolean, IsDateString, IsInt, IsOptional } from 'class-validator';
+import { IsBoolean, IsDateString, IsInt, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateAcessoDto {
   @IsInt()
@@ -6,6 +6,10 @@ export class CreateAcessoDto {
 
   @IsInt()
   sala_id: number;
+
+  @IsNotEmpty()
+  @IsString()
+  code: string;
 
   @IsInt()
   agendamento_id: number;
@@ -21,4 +25,6 @@ export class CreateAcessoDto {
   @IsOptional()
   @IsBoolean()
   ativo?: boolean;
+
+
 }

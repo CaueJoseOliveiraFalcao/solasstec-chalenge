@@ -29,8 +29,7 @@ export class AgendamentoService {
       }
     );
   }
-  async validateAgendamentoData(dataAgendamento :Date , sala_id : number)
-        :Promise<Date> {
+  async validateAgendamentoData(dataAgendamento :Date , sala_id : number):Promise<Date> {
 
 
         while (true) {
@@ -40,7 +39,6 @@ export class AgendamentoService {
           }
           if(!(await this.salaService.isSalaActiveOnDate(sala_id , dataAgendamento))){
             dataAgendamento.setUTCDate(dataAgendamento.getUTCDate() + 1);
-            console.log(`Sala fechada nesse dia, indo para o proximo dia`);  
             continue;
           }
           return dataAgendamento;
@@ -55,6 +53,7 @@ export class AgendamentoService {
 
     //enquanto o dia da semana escolhido for feriado ou loja fechada ele adiciona proximo dia
     const dataSemFeriadoEAberto = await this.validateAgendamentoData(dataAgendada , data.sala_id);
+
     if (dataSemFeriadoEAberto.getTime() !== dataAgendadaCopia.getTime()){
         const dataSemFeriadoEAbertoFomatado = 
         `${dataSemFeriadoEAberto.getUTCFullYear()}-${((dataSemFeriadoEAberto.getUTCMonth() + 1).toString().padStart(2 , '0'))}-${dataSemFeriadoEAberto.getUTCDate().toString().padStart(2 , '0')}`;
@@ -97,7 +96,6 @@ export class AgendamentoService {
         );
       }
     }
-    
     const novoAgendamento = await this.prisma.agendamento.create({
         data: {
             visitante_id: data.visitante_id,
@@ -127,6 +125,7 @@ export class AgendamentoService {
         entrada_em: null,
         saida_em: null,
         ativo: true,
+        code : novoAgendamento.code
       },
     });
     return {message : 'agendamento criado'}
@@ -137,9 +136,9 @@ export class AgendamentoService {
         return validate;
     }
      const horasDia = await this.salaService.getHourOfThisDay(data.data_agendada, data.sala_id);
-      const { init, end } = horasDia; // Ex: "08:00" - "17:00"
+      const { init, end } = horasDia;
 
-      // 3. Agendamentos já existentes
+
       const agendamentosOcupados = await this.getAgendamentosOucupadosNaData(data.sala_id, data.data_agendada);
       const horariosLivres = await this.calculaHorasLivres(init, end, agendamentosOcupados);
 
@@ -151,7 +150,6 @@ export class AgendamentoService {
       }
     }
   async calculaHorasLivres(init: string,end: string, agendamentosOcupados : any): Promise<any>{
-    // Funções utilitárias
       const toMinutes = (time: string) => {
         const [h, m] = time.split(':').map(Number);
         return h * 60 + m;
@@ -159,12 +157,10 @@ export class AgendamentoService {
       const toHourStr = (min: number) =>
         `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
 
-      // 4. Ordena os agendamentos pelo início
       const ocupadosOrdenados = agendamentosOcupados.sort(
         (a, b) => toMinutes(a.inicio) - toMinutes(b.inicio)
       );
 
-      // 5. Calcula os intervalos livres
       const livre: { inicio: string; fim: string }[] = [];
       let atual = toMinutes(init);
       const fimDia = toMinutes(end);
@@ -173,18 +169,15 @@ export class AgendamentoService {
         const inicioAg = toMinutes(ag.inicio);
         const fimAg = toMinutes(ag.fim);
 
-        // Se há um buraco antes deste agendamento
         if (inicioAg > atual) {
           livre.push({ inicio: toHourStr(atual), fim: toHourStr(inicioAg) });
         }
 
-        // Move o ponteiro pro final do agendamento atual
         if (fimAg > atual) {
           atual = fimAg;
         }
       }
 
-      // Último espaço até o fim do expediente
       if (atual < fimDia) {
         livre.push({ inicio: toHourStr(atual), fim: toHourStr(fimDia) });
       }
@@ -203,7 +196,6 @@ async getAgendamentosOucupadosNaData(salaId : number , dataAgendadaStr : string)
           hora_fim: true,
         },
       });
-      // Monta lista de horários ocupados
       const horariosOcupados = agendamentosExistentes.map(a => ({
         inicio: a.hora_inicio,
         fim: a.hora_fim,
